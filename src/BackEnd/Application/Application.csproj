@@ -10,4 +10,10 @@
     <ProjectReference Include="..\Model\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UseCases\" />
+    <Folder Include="Response\" />
+    <Folder Include="Request\" />
+  </ItemGroup>
+
 </Project>

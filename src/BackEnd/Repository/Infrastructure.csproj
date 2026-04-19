@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Model\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DataAcess\Repositories\" />
+  </ItemGroup>
+
 </Project>
