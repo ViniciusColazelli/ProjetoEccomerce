@@ -9,11 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackEnd", "BackEnd", "{1CD2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller.API", "src\BackEnd\Controller.API\Controller.API.csproj", "{3F9A001A-351C-4D21-BF3B-2E83B783935D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "src\BackEnd\Model\Model.csproj", "{BE9F6AB5-5A63-4D5F-BFF8-A5AB516E0819}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\BackEnd\Model\Domain.csproj", "{BE9F6AB5-5A63-4D5F-BFF8-A5AB516E0819}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "src\BackEnd\Application\Application.csproj", "{6937B104-5D3E-49A0-958F-2E84A1658A15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "src\BackEnd\Repository\Repository.csproj", "{14DA1DBC-82AC-4596-B919-2768A96BBFDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\BackEnd\Repository\Infrastructure.csproj", "{14DA1DBC-82AC-4596-B919-2768A96BBFDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
