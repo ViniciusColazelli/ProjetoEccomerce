@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackEnd", "BackEnd", "{1CD2C66B-C1AF-4587-8BF0-09AD66B0F296}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Controller.API", "src\BackEnd\Controller.API\Controller.API.csproj", "{3F9A001A-351C-4D21-BF3B-2E83B783935D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "src\BackEnd\Controller.API\API.csproj", "{3F9A001A-351C-4D21-BF3B-2E83B783935D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "src\BackEnd\Model\Domain.csproj", "{BE9F6AB5-5A63-4D5F-BFF8-A5AB516E0819}"
 EndProject
