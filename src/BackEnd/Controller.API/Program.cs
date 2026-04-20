@@ -1,5 +1,6 @@
 using Infrastructure;
 using Application;
+using API.Filtros;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddMvc(opcao => opcao.Filters.Add(typeof(ExcepitionFiltro)));
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
