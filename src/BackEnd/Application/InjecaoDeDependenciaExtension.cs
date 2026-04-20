@@ -6,6 +6,11 @@ namespace Application
     {
         public static void AddApplication(this IServiceCollection services)
         {
+            AddUseCases(services);
+        }
+
+        private static void AddUseCases(this IServiceCollection services)
+        {
 
         }
     }
