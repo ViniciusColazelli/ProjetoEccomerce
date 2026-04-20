@@ -16,7 +16,7 @@ namespace Infrastructure.DataAcess.Repositories
             await _dbcontext.clientes.AddAsync(user);
         }
 
-        public async Task ExisteClienteAtivoComEmail(string email) 
+        public async Task ExisteClienteComEmail(string email) 
         {
             
         }

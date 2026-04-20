@@ -1,7 +1,8 @@
-﻿using Application.Request;
+﻿using Application.Criptografia;
+using Application.Request;
 using Application.Response;
+using Application.Services.Mapeamento;
 using Exceptions.ExceptionBase;
-using System.Text.Json;
 
 namespace Application.UseCases.Registrar
 {
@@ -9,11 +10,13 @@ namespace Application.UseCases.Registrar
     {
         public ResponseClienteRegistrado Execute(RequestRegistrarCliente request)
         {
-            
+            var criptografiaDeSenha = new CriptografiaDeSenha();
+
             ValidarRequest(request);
 
-            //Mapear nossa Request para a entidade
-            //Fazer a criptografia da senha
+            var cliente = MapearRequest.RequestParaEntidade(request);
+
+            cliente.Senha = criptografiaDeSenha.Criptografia(cliente.Senha);
             //Salvar no BD
 
             return new ResponseClienteRegistrado
