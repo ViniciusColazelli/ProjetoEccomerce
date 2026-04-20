@@ -2,13 +2,17 @@
 using Application.Request;
 using Application.Response;
 using Application.Services.Mapeamento;
+using Domain.Repositories.Cliente;
 using Exceptions.ExceptionBase;
 
 namespace Application.UseCases.Registrar
 {
     public class ResgitrarClienteUseCase
     {
-        public ResponseClienteRegistrado Execute(RequestRegistrarCliente request)
+        private readonly IClienteRepository _clienteRepository;
+
+
+        public async Task<ResponseClienteRegistrado> Execute(RequestRegistrarCliente request)
         {
             var criptografiaDeSenha = new CriptografiaDeSenha();
 
@@ -17,7 +21,9 @@ namespace Application.UseCases.Registrar
             var cliente = MapearRequest.RequestParaEntidade(request);
 
             cliente.Senha = criptografiaDeSenha.Criptografia(cliente.Senha);
+
             //Salvar no BD
+            await _clienteRepository.Adicionar(cliente);
 
             return new ResponseClienteRegistrado
             {

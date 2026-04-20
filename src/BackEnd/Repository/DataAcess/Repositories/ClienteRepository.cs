@@ -1,8 +1,10 @@
 ﻿using Domain.Entities;
+using Domain.Repositories.Cliente;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataAcess.Repositories
 {
-    public class ClienteRepository
+    public class ClienteRepository : IClienteRepository
     {
         private readonly EccomerceDbContext _dbcontext;
 
@@ -11,14 +13,15 @@ namespace Infrastructure.DataAcess.Repositories
             _dbcontext = dbContext;
         }
 
-        public async Task Adicionar(Clientes user)
+        public async Task Adicionar(Clientes clientes)
         {
-            await _dbcontext.clientes.AddAsync(user);
+            await _dbcontext.clientes.AddAsync(clientes);
         }
 
-        public async Task ExisteClienteComEmail(string email) 
+        public async Task<bool> ExisteClienteComEmail(string email) 
         {
-            
+            return await _dbcontext.clientes.AnyAsync(c => c.Email.Equals(email));
         }
+
     }
 }
