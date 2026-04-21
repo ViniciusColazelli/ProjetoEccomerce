@@ -11,11 +11,9 @@ namespace API.Controllers
     {
         [HttpPost]
         [ProducesResponseType(typeof(ResponseClienteRegistrado), StatusCodes.Status201Created)]
-        public IActionResult Registrar(RequestRegistrarCliente request)
+        public async Task<IActionResult> Registrar([FromServices] IRegistrarClienteUseCase useCase, [FromBody]RequestRegistrarCliente request)
         {
-            var useCase = new ResgitrarClienteUseCase(); 
-
-            var result = useCase.Execute(request);
+            var result = await useCase.Execute(request);
 
             return Created(string.Empty, result);
         }

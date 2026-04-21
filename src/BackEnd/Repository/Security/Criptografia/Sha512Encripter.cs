@@ -1,9 +1,10 @@
-﻿using System.Security.Cryptography;
+﻿using Domain.Security.Criptografia;
+using System.Security.Cryptography;
 using System.Text;
 
-namespace Application.Criptografia
+namespace Infrastructure.Security.Criptografia
 {
-    public class CriptografiaDeSenha
+    public class Sha512Encripter : ISenhaCriptografada
     {
         public string Criptografia(string senha)
         {

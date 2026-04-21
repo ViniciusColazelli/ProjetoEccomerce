@@ -8,7 +8,7 @@ using System.Net;
 
 namespace API.Filtros
 {
-    public class ExcepitionFiltro : IExceptionFilter
+    public class ExceptionFiltro : IExceptionFilter
     {
         public void OnException(ExceptionContext context)
         {

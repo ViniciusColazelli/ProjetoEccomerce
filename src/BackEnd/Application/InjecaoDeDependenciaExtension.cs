@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Application.UseCases.Registrar;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Application
 {
@@ -11,7 +12,7 @@ namespace Application
 
         private static void AddUseCases(this IServiceCollection services)
         {
-
+            services.AddScoped<IRegistrarClienteUseCase, ResgitrarClienteUseCase>();
         }
     }
 }

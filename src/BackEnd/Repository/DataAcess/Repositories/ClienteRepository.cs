@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Domain.Repositories.Cliente;
+using Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DataAcess.Repositories

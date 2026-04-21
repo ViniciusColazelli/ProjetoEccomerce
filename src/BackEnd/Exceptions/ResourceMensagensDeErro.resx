@@ -120,6 +120,9 @@
   <data name="EMAIL_INVALIDO" xml:space="preserve">
     <value>O e-mail é invalido</value>
   </data>
+  <data name="EMAIL_JA_REGISTRADO" xml:space="preserve">
+    <value>E-mail já registrado.</value>
+  </data>
   <data name="EMAIL_VAZIO" xml:space="preserve">
     <value>E-mail não pode ser vazio</value>
   </data>

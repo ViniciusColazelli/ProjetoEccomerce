@@ -11,7 +11,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddMvc(opcao => opcao.Filters.Add(typeof(ExcepitionFiltro)));
+builder.Services.AddMvc(opcao => opcao.Filters.Add(typeof(ExceptionFiltro)));
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);

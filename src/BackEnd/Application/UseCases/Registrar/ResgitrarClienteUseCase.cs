@@ -1,29 +1,38 @@
-﻿using Application.Criptografia;
-using Application.Request;
+﻿using Application.Request;
 using Application.Response;
 using Application.Services.Mapeamento;
-using Domain.Repositories.Cliente;
+using Domain.Repositories;
+using Domain.Security.Criptografia;
+using Exceptions;
 using Exceptions.ExceptionBase;
 
 namespace Application.UseCases.Registrar
 {
-    public class ResgitrarClienteUseCase
+    public class ResgitrarClienteUseCase : IRegistrarClienteUseCase
     {
         private readonly IClienteRepository _clienteRepository;
+        private readonly ISenhaCriptografada _senhaCriptografada;
+        private readonly ISalvarDBRepository _salvarDBRepository;
 
+        public ResgitrarClienteUseCase(IClienteRepository clienteRepository, ISenhaCriptografada senhaCriptografada, ISalvarDBRepository salvarDBRepository)
+        {
+            _clienteRepository = clienteRepository;
+            _senhaCriptografada = senhaCriptografada;
+            _salvarDBRepository = salvarDBRepository;
+        }
 
         public async Task<ResponseClienteRegistrado> Execute(RequestRegistrarCliente request)
         {
-            var criptografiaDeSenha = new CriptografiaDeSenha();
-
-            ValidarRequest(request);
+            await ValidarRequest(request);
 
             var cliente = MapearRequest.RequestParaEntidade(request);
 
-            cliente.Senha = criptografiaDeSenha.Criptografia(cliente.Senha);
+            cliente.Senha = _senhaCriptografada.Criptografia(cliente.Senha);
 
-            //Salvar no BD
+            //Salvar no DB
             await _clienteRepository.Adicionar(cliente);
+
+            await _salvarDBRepository.Salvar();
 
             return new ResponseClienteRegistrado
             {
@@ -31,11 +40,17 @@ namespace Application.UseCases.Registrar
             };
         }
 
-        private void ValidarRequest(RequestRegistrarCliente request)
+        private async Task ValidarRequest(RequestRegistrarCliente request)
         {
             var validator = new RegistrarClienteValidator();
 
             var result = validator.Validate(request);
+
+            var emailExist = await _clienteRepository.ExisteClienteComEmail(request.Email);
+            if (emailExist)
+            {
+                result.Errors.Add(new FluentValidation.Results.ValidationFailure(string.Empty, ResourceMensagensDeErro.EMAIL_JA_REGISTRADO));
+            }
 
             if (result.IsValid == false)
             {
