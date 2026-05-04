@@ -15,7 +15,7 @@ namespace Infrastructure
         {
             AddDbContext_PostgreSql(services, configuration);
             AddRepositories(services);
-            SenhaCriptografada(services);
+            SenhaCriptografada(services, configuration);
         }
 
         private static void AddDbContext_PostgreSql(this IServiceCollection services, IConfiguration configuration)
@@ -32,9 +32,11 @@ namespace Infrastructure
             services.AddScoped<ISalvarDBRepository, SalvarDBRepository>();
         }
 
-        private static void SenhaCriptografada(IServiceCollection services)
+        private static void SenhaCriptografada(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<ISenhaCriptografada>(options => new Sha512Encripter());
+            var additionalKey = configuration.GetValue<string>("Settings:Password:AdditionalKey");
+
+            services.AddScoped<ISenhaCriptografada>(options => new Sha512Encripter(additionalKey!));
         }
     }
 }
