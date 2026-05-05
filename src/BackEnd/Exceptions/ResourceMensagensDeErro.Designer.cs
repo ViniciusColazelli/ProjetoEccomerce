@@ -61,6 +61,15 @@ namespace Exceptions {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nenhum cliente logado..
+        /// </summary>
+        public static string CLIENTE_NAO_LOGADO {
+            get {
+                return ResourceManager.GetString("CLIENTE_NAO_LOGADO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to O e-mail é invalido.
         /// </summary>
         public static string EMAIL_INVALIDO {
@@ -75,6 +84,15 @@ namespace Exceptions {
         public static string EMAIL_JA_REGISTRADO {
             get {
                 return ResourceManager.GetString("EMAIL_JA_REGISTRADO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Email e/ou senha invalido.
+        /// </summary>
+        public static string EMAIL_OU_SENHA_INVALIDO {
+            get {
+                return ResourceManager.GetString("EMAIL_OU_SENHA_INVALIDO", resourceCulture);
             }
         }
         
@@ -102,6 +120,15 @@ namespace Exceptions {
         public static string NOME_VAZIO {
             get {
                 return ResourceManager.GetString("NOME_VAZIO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Não foi possível alterar a senha. Verifique sua senha atual e tente novamente..
+        /// </summary>
+        public static string SENHA_ATUAL_NAO_REGISTRADA {
+            get {
+                return ResourceManager.GetString("SENHA_ATUAL_NAO_REGISTRADA", resourceCulture);
             }
         }
         

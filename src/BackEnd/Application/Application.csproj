@@ -17,4 +17,11 @@
     <ProjectReference Include="..\Model\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="UseCases\Login\" />
+    <Folder Include="UseCases\Profile\" />
+    <Folder Include="UseCases\Update\" />
+    <Folder Include="UseCases\TrocarSenha\" />
+  </ItemGroup>
+
 </Project>

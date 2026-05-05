@@ -117,11 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CLIENTE_NAO_LOGADO" xml:space="preserve">
+    <value>Nenhum cliente logado.</value>
+  </data>
   <data name="EMAIL_INVALIDO" xml:space="preserve">
     <value>O e-mail é invalido</value>
   </data>
   <data name="EMAIL_JA_REGISTRADO" xml:space="preserve">
     <value>E-mail já registrado.</value>
+  </data>
+  <data name="EMAIL_OU_SENHA_INVALIDO" xml:space="preserve">
+    <value>Email e/ou senha invalido</value>
   </data>
   <data name="EMAIL_VAZIO" xml:space="preserve">
     <value>E-mail não pode ser vazio</value>
@@ -131,6 +137,9 @@
   </data>
   <data name="NOME_VAZIO" xml:space="preserve">
     <value>Nome não pode ser vazio</value>
+  </data>
+  <data name="SENHA_ATUAL_NAO_REGISTRADA" xml:space="preserve">
+    <value>Não foi possível alterar a senha. Verifique sua senha atual e tente novamente.</value>
   </data>
   <data name="SENHA_INVALIDA" xml:space="preserve">
     <value>A senha deve possuir mais de 6 caracteres</value>
