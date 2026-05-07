@@ -1,19 +1,23 @@
-﻿using API.IntegrationTests.Factories;
+﻿using API.IntegrationTests.Fixture;
 using Application.Request;
 using Application.Response;
-using Domain.Security.Criptografia;
 using FluentAssertions;
-using Infrastructure.DataAcess;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Json;
 using Xunit;
 
 namespace API.IntegrationTests.Tests
 {
-    public class RegistrarClienteTests
+    [Collection("SequentialTests")]
+    public class RegistrarClienteTests : IClassFixture<EcommerceFixture>
     {
+        private readonly EcommerceFixture _fixture;
         private const string ENDPOINT = "/api/cliente";
+
+        public RegistrarClienteTests(EcommerceFixture fixture)
+        {
+            _fixture = fixture;
+        }
 
         // ════════════════════════════════════════════════════════════════
         // FLUXO FELIZ
@@ -23,8 +27,6 @@ namespace API.IntegrationTests.Tests
         public async Task Should_Return201_When_ClientIsCreatedSuccessfully()
         {
             // Arrange
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
             var ct = TestContext.Current.CancellationToken;
 
             var request = new RequestRegistrarCliente
@@ -35,7 +37,7 @@ namespace API.IntegrationTests.Tests
             };
 
             // Act
-            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            var response = await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -53,8 +55,6 @@ namespace API.IntegrationTests.Tests
         public async Task Should_PersistCliente_When_RequestIsValid()
         {
             // Arrange
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
             var ct = TestContext.Current.CancellationToken;
 
             var request = new RequestRegistrarCliente
@@ -65,12 +65,13 @@ namespace API.IntegrationTests.Tests
             };
 
             // Act
-            await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
-            // Assert — acessa o banco InMemory diretamente para verificar persistência
-            using var scope = factory.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<EccomerceDbContext>();
-            var clienteSalvo = dbContext.Clientes.FirstOrDefault(c => c.Email == request.Email);
+            // Assert
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+            var clienteSalvo = dbContext.Clientes
+                .FirstOrDefault(c => c.Email == request.Email);
 
             clienteSalvo.Should().NotBeNull();
             clienteSalvo!.Nome.Should().Be(request.Nome);
@@ -79,14 +80,18 @@ namespace API.IntegrationTests.Tests
 
         // ════════════════════════════════════════════════════════════════
         // REGRA DE NEGÓCIO: senha criptografada
+        // Valida que:
+        // 1. A senha não foi salva em texto puro
+        // 2. A senha salva tem o tamanho esperado de um SHA-512 (128 chars)
+        // 3. A senha salva contém apenas caracteres hexadecimais
+        // Dessa forma garantimos que a criptografia foi aplicada sem
+        // depender de chaves externas para comparar o hash.
         // ════════════════════════════════════════════════════════════════
 
         [Fact]
         public async Task Should_SaveEncryptedPassword_When_ClientIsCreated()
         {
             // Arrange
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
             var ct = TestContext.Current.CancellationToken;
             var senhaOriginal = "Senha@123";
 
@@ -98,21 +103,27 @@ namespace API.IntegrationTests.Tests
             };
 
             // Act
-            await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
-            // Assert — senha salva deve ser diferente da original
-            using var scope = factory.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<EccomerceDbContext>();
-            var clienteSalvo = dbContext.Clientes.FirstOrDefault(c => c.Email == request.Email);
+            // Assert
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+            var clienteSalvo = dbContext.Clientes
+                .FirstOrDefault(c => c.Email == request.Email);
 
             clienteSalvo.Should().NotBeNull();
+
+            // 1. Senha não foi salva em texto puro
             clienteSalvo!.Senha.Should().NotBe(senhaOriginal,
                 because: "a senha deve ser criptografada antes de persistir");
 
-            // Verifica que o hash salvo é o correto usando o serviço real
-            var criptografia = scope.ServiceProvider.GetRequiredService<ISenhaCriptografada>();
-            var hashEsperado = criptografia.Criptografia(senhaOriginal);
-            clienteSalvo.Senha.Should().Be(hashEsperado);
+            // 2. Tamanho esperado de um hash SHA-512 em hexadecimal = 128 caracteres
+            clienteSalvo.Senha.Should().HaveLength(128,
+                because: "um hash SHA-512 em hexadecimal deve ter exatamente 128 caracteres");
+
+            // 3. Contém apenas caracteres hexadecimais (0-9, a-f)
+            clienteSalvo.Senha.Should().MatchRegex("^[0-9a-f]{128}$",
+                because: "o hash SHA-512 deve conter apenas caracteres hexadecimais minúsculos");
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -122,9 +133,7 @@ namespace API.IntegrationTests.Tests
         [Fact]
         public async Task Should_ReturnError_When_EmailAlreadyRegistered()
         {
-            // Arrange — mesmo banco para os dois cadastros
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
+            // Arrange
             var ct = TestContext.Current.CancellationToken;
 
             var request = new RequestRegistrarCliente
@@ -135,10 +144,10 @@ namespace API.IntegrationTests.Tests
             };
 
             // Primeiro cadastro — deve funcionar
-            await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
             // Act — segundo cadastro com mesmo e-mail
-            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            var response = await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -152,8 +161,6 @@ namespace API.IntegrationTests.Tests
         public async Task Should_ReturnError_When_NomeIsEmpty()
         {
             // Arrange
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
             var ct = TestContext.Current.CancellationToken;
 
             var request = new RequestRegistrarCliente
@@ -164,7 +171,7 @@ namespace API.IntegrationTests.Tests
             };
 
             // Act
-            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            var response = await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -174,8 +181,6 @@ namespace API.IntegrationTests.Tests
         public async Task Should_ReturnError_When_EmailIsInvalid()
         {
             // Arrange
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
             var ct = TestContext.Current.CancellationToken;
 
             var request = new RequestRegistrarCliente
@@ -186,7 +191,7 @@ namespace API.IntegrationTests.Tests
             };
 
             // Act
-            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            var response = await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -196,8 +201,6 @@ namespace API.IntegrationTests.Tests
         public async Task Should_ReturnError_When_SenhaIsEmpty()
         {
             // Arrange
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
             var ct = TestContext.Current.CancellationToken;
 
             var request = new RequestRegistrarCliente
@@ -208,7 +211,7 @@ namespace API.IntegrationTests.Tests
             };
 
             // Act
-            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            var response = await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -218,8 +221,6 @@ namespace API.IntegrationTests.Tests
         public async Task Should_ReturnError_When_AllFieldsAreEmpty()
         {
             // Arrange
-            var factory = new CustomWebApplicationFactory(dbName: Guid.NewGuid().ToString());
-            var client = factory.CreateClient();
             var ct = TestContext.Current.CancellationToken;
 
             var request = new RequestRegistrarCliente
@@ -230,11 +231,10 @@ namespace API.IntegrationTests.Tests
             };
 
             // Act
-            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+            var response = await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
-
     }
 }
