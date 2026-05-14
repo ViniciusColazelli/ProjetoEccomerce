@@ -27,7 +27,7 @@ namespace Application.UseCases.Registrar
 
             var cliente = MapearRequest.RequestParaEntidade(request);
 
-            cliente.Senha = _senhaCriptografada.Criptografia(cliente.Senha);
+            cliente.Senha = _senhaCriptografada.Criptografia(request.Senha);
 
             //Salvar no DB
             await _clienteRepository.Adicionar(cliente);

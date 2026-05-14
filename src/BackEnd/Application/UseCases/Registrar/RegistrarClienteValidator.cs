@@ -1,4 +1,5 @@
 ﻿using Application.Request;
+using Application.SharedValidators;
 using Exceptions;
 using FluentValidation;
 
@@ -11,9 +12,7 @@ namespace Application.UseCases.Registrar
             RuleFor(cliente => cliente.Nome).NotEmpty().WithMessage(ResourceMensagensDeErro.NOME_VAZIO);
             RuleFor(cliente => cliente.Email).NotEmpty().WithMessage(ResourceMensagensDeErro.EMAIL_VAZIO);
             RuleFor(cliente => cliente.Email).EmailAddress().WithMessage(ResourceMensagensDeErro.EMAIL_INVALIDO);
-            RuleFor(cliente => cliente.Senha).NotEmpty().WithMessage(ResourceMensagensDeErro.SENHA_VAZIO);
-            RuleFor(cliente => cliente.Senha).MinimumLength(6).WithMessage(ResourceMensagensDeErro.SENHA_INVALIDA);
-
+            RuleFor(cliente => cliente.Senha).SetValidator(new SenhaValidator<RequestRegistrarCliente>());
         }
     }
 }

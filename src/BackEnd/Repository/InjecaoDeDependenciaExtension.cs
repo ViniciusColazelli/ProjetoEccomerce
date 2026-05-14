@@ -1,8 +1,10 @@
 ﻿using Domain.Repositories;
 using Domain.Security.Criptografia;
+using Domain.Services.ClienteLogado;
 using Infrastructure.DataAcess;
 using Infrastructure.DataAcess.Repositories;
 using Infrastructure.Security.Criptografia;
+using Infrastructure.Services.ClienteLogado;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +15,10 @@ namespace Infrastructure
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            SenhaCriptografada(services);
             AddDbContext_PostgreSql(services, configuration);
             AddRepositories(services);
-            SenhaCriptografada(services, configuration);
+            AddClienteLogado(services);
         }
 
         private static void AddDbContext_PostgreSql(this IServiceCollection services, IConfiguration configuration)
@@ -32,11 +35,14 @@ namespace Infrastructure
             services.AddScoped<ISalvarDBRepository, SalvarDBRepository>();
         }
 
-        private static void SenhaCriptografada(IServiceCollection services, IConfiguration configuration)
+        private static void AddClienteLogado(IServiceCollection services)
         {
-            var additionalKey = configuration.GetValue<string>("Settings:Password:AdditionalKey");
+            services.AddScoped<IClienteLogado, ClienteLogado>();
+        }
 
-            services.AddScoped<ISenhaCriptografada>(options => new Sha512Encripter(additionalKey!));
+        private static void SenhaCriptografada(IServiceCollection services)
+        {
+            services.AddScoped<ISenhaCriptografada>(options => new Sha512Encripter());
         }
     }
 }

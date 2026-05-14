@@ -23,19 +23,19 @@ namespace Infrastructure.DataAcess.Repositories
             return await _dbcontext.Clientes.AnyAsync(c => c.Email.Equals(email));
         }
 
-        public Task<Clientes> GetById(long id)
+        public async Task<Clientes> GetById(long id)
         {
-            throw new NotImplementedException();
+            return await _dbcontext.Clientes.FirstAsync(user => user.Id == id);
         }
 
-        public Task<Clientes?> GetEmailAndPassword(string email, string senha)
+        public async Task<Clientes?> GetEmailAndPassword(string email, string senha)
         {
-            throw new NotImplementedException();
+            return await _dbcontext.Clientes.AsNoTracking().FirstOrDefaultAsync(user => user.Email.Equals(email) && user.Senha.Equals(senha));
         }
 
         public void Update(Clientes clientes)
         {
-            throw new NotImplementedException();
+            _dbcontext.Clientes.Update(clientes);
         }
     }
 }

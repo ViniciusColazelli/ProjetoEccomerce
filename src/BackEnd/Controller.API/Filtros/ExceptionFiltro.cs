@@ -31,6 +31,16 @@ namespace API.Filtros
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 context.Result = new BadRequestObjectResult(new ResponseErro(exception!.ErrorMessages));
             }
+            else if (context.Exception is ClienteNaoLogadoException)
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                context.Result = new UnauthorizedObjectResult(new ResponseErro(context.Exception.Message));
+            }
+            else if (context.Exception is ErroEmLoginException)
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                context.Result = new UnauthorizedObjectResult(new ResponseErro(context.Exception.Message));
+            }
         }
 
         private void ThrowExceptionDesconhecida(ExceptionContext context)

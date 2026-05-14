@@ -1,6 +1,9 @@
 ﻿using Application.Request;
 using Application.Response;
+using Application.UseCases.Profile;
 using Application.UseCases.Registrar;
+using Application.UseCases.TrocarSenha;
+using Application.UseCases.Update;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -16,6 +19,35 @@ namespace API.Controllers
             var result = await useCase.Execute(request);
 
             return Created(string.Empty, result);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(ResponseClienteProfile), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUserProfile([FromServices] IGetClienteProfileUseCase useCase)
+        {
+            var result = await useCase.Execute();
+
+            return Ok(result);
+        }
+
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Atualizar([FromServices] IUpdateClienteUseCase useCase, [FromBody] RequestUpdateCliente request)
+        {
+            await useCase.Execute(request);
+
+            return NoContent();
+        }
+
+        [HttpPut("change-password")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> AlterarSenha([FromServices] ITrocarSenhaUseCase useCase, [FromBody] RequestTrocarSenha request)
+        {
+            await useCase.Execute(request);
+
+            return NoContent();
         }
     }
 }
