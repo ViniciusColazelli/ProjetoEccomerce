@@ -1,4 +1,4 @@
-using Infrastructure;
+﻿using Infrastructure;
 using Application;
 using API.Filtros;
 using API.Converters;
@@ -20,6 +20,8 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.None; // ← permite cross-origin
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 builder.Services.AddApplication();
@@ -31,10 +33,11 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "http://localhost:3000"              // Next.js local
+                "http://localhost:3000"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -49,9 +52,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseSession();
 
-app.UseHttpsRedirection();
-
 app.UseCors("FrontEnd");
+
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
