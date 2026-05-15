@@ -8,7 +8,6 @@ using Xunit;
 
 namespace API.IntegrationTests.Tests
 {
-    [Collection("SequentialTests")]
     public class RegistrarClienteTests : IClassFixture<EcommerceFixture>
     {
         private readonly EcommerceFixture _fixture;
@@ -80,12 +79,6 @@ namespace API.IntegrationTests.Tests
 
         // ════════════════════════════════════════════════════════════════
         // REGRA DE NEGÓCIO: senha criptografada
-        // Valida que:
-        // 1. A senha não foi salva em texto puro
-        // 2. A senha salva tem o tamanho esperado de um SHA-512 (128 chars)
-        // 3. A senha salva contém apenas caracteres hexadecimais
-        // Dessa forma garantimos que a criptografia foi aplicada sem
-        // depender de chaves externas para comparar o hash.
         // ════════════════════════════════════════════════════════════════
 
         [Fact]
@@ -113,17 +106,16 @@ namespace API.IntegrationTests.Tests
 
             clienteSalvo.Should().NotBeNull();
 
-            // 1. Senha não foi salva em texto puro
+            // Senha não foi salva em texto puro
             clienteSalvo!.Senha.Should().NotBe(senhaOriginal,
                 because: "a senha deve ser criptografada antes de persistir");
 
-            // 2. Tamanho esperado de um hash SHA-512 em hexadecimal = 128 caracteres
-            clienteSalvo.Senha.Should().HaveLength(128,
-                because: "um hash SHA-512 em hexadecimal deve ter exatamente 128 caracteres");
+            // Hash salvo é idêntico ao gerado pelo serviço real com a mesma AdditionalKey
+            var criptografia = _fixture.GetCriptografia(scope);
+            var hashEsperado = criptografia.Criptografia(senhaOriginal);
 
-            // 3. Contém apenas caracteres hexadecimais (0-9, a-f)
-            clienteSalvo.Senha.Should().MatchRegex("^[0-9a-f]{128}$",
-                because: "o hash SHA-512 deve conter apenas caracteres hexadecimais minúsculos");
+            clienteSalvo.Senha.Should().Be(hashEsperado,
+                because: "o hash salvo deve ser idêntico ao gerado pelo serviço real");
         }
 
         // ════════════════════════════════════════════════════════════════
