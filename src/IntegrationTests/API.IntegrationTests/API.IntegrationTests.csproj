@@ -26,7 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BackEnd\Controller.API\API.csproj" />
+    <ProjectReference Include="..\..\BackEnd\API\API.csproj" />
+    <ProjectReference Include="..\..\BackEnd\Application\Application.csproj" />
+    <ProjectReference Include="..\..\BackEnd\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\BackEnd\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

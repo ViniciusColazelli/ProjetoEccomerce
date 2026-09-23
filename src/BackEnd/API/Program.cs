@@ -3,6 +3,8 @@ using Application;
 using API.Filtros;
 using API.Converters;
 
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".env.development"));
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

@@ -4,6 +4,7 @@
 # Visual Studio (>=2015) project-specific, machine local files
 .vs/
 
+.env.development
 appsettings.Development.json
 appsettings.*.json        
 !appsettings.json   
