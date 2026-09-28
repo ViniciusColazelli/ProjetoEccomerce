@@ -1,9 +1,8 @@
-﻿using Infrastructure;
-using Application;
+﻿using API.Converters;
 using API.Filtros;
-using API.Converters;
-
-DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", ".env.development"));
+using Application;
+using FluentMigrator.Runner;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +61,15 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+MigrateDatabase();
+
 app.Run();
+
+void MigrateDatabase()
+{
+    using var scope = app.Services.CreateScope();
+    var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+    runner.MigrateUp();
+}
 
 public partial class Program { }
