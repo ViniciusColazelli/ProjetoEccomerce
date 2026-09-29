@@ -1,7 +1,6 @@
 ﻿using API.Converters;
 using API.Filtros;
 using Application;
-using FluentMigrator.Runner;
 using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,15 +60,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-MigrateDatabase();
+app.Services.MigrateDatabase();
 
 app.Run();
-
-void MigrateDatabase()
-{
-    using var scope = app.Services.CreateScope();
-    var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-    runner.MigrateUp();
-}
 
 public partial class Program { }
