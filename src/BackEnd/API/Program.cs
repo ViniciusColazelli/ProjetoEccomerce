@@ -1,4 +1,5 @@
 ﻿using API.Converters;
+using API.Extensions;
 using API.Filtros;
 using Application;
 using Infrastructure;
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new StringConverter()));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerComJwt();
 
 builder.Services.AddMvc(opcao => opcao.Filters.Add(typeof(ExceptionFiltro)));
 
