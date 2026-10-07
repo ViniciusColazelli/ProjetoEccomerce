@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using System.Security.Claims;
+using Domain.Entities;
 using Domain.Services.ClienteLogado;
 using Exceptions.ExceptionBase;
 using Infrastructure.DataAcess;
@@ -17,16 +18,17 @@ namespace Infrastructure.Services.ClienteLogado
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
         }
+
         public async Task<Clientes> Cliente()
         {
-            var clienteId = _httpContextAccessor.HttpContext!.Session.GetInt32("ClienteId");
+            var clienteIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
 
-            if (clienteId is null)
+            if (clienteIdClaim is null || int.TryParse(clienteIdClaim.Value, out var clienteId) is false)
             {
                 throw new ClienteNaoLogadoException();
             }
 
-            return await _dbContext.Clientes.AsNoTracking().FirstAsync(user => user.Id == clienteId);
+            return await _dbContext.Clientes.AsNoTracking().FirstAsync(cliente => cliente.Id == clienteId);
         }
     }
 }
