@@ -17,10 +17,10 @@ namespace Infrastructure.Security.Tokens
 
         public GeradorTokenJwt(IConfiguration configuration)
         {
-            _chaveSecreta = configuration.GetValue<string>("Settings:Jwt:ChaveSecreta")!;
-            _issuer = configuration.GetValue<string>("Settings:Jwt:Issuer")!;
-            _audience = configuration.GetValue<string>("Settings:Jwt:Audience")!;
-            _expiracaoEmMinutos = configuration.GetValue<int>("Settings:Jwt:ExpiracaoEmMinutos");
+            _chaveSecreta = configuration.GetValue<string>("Jwt:ChaveSecreta")!;
+            _issuer = configuration.GetValue<string>("Jwt:Issuer")!;
+            _audience = configuration.GetValue<string>("Jwt:Audience")!;
+            _expiracaoEmMinutos = configuration.GetValue<int>("Jwt:ExpiracaoEmMinutos");
         }
 
         public string GerarToken(Clientes cliente)

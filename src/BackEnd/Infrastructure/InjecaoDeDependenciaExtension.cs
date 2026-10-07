@@ -74,9 +74,9 @@ namespace Infrastructure
 
         private static void AddAuthenticationJwt(IServiceCollection services, IConfiguration configuration)
         {
-            var chaveSecreta = configuration.GetValue<string>("Settings:Jwt:ChaveSecreta")!;
-            var issuer = configuration.GetValue<string>("Settings:Jwt:Issuer")!;
-            var audience = configuration.GetValue<string>("Settings:Jwt:Audience")!;
+            var chaveSecreta = configuration.GetValue<string>("Jwt:ChaveSecreta")!;
+            var issuer = configuration.GetValue<string>("Jwt:Issuer")!;
+            var audience = configuration.GetValue<string>("Jwt:Audience")!;
 
             services.AddAuthentication(options =>
             {
