@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CLIENTE_NAO_LOGADO" xml:space="preserve">
-    <value>Nenhum cliente logado.</value>
+    <value>Cliente não autenticado ou sessão inválida, tente novamente.</value>
   </data>
   <data name="EMAIL_INVALIDO" xml:space="preserve">
     <value>O e-mail é invalido</value>

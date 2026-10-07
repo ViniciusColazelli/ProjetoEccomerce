@@ -1,6 +1,7 @@
 ﻿using Application.Request;
 using Application.Response;
 using Application.UseCases.Login;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,6 +11,7 @@ namespace API.Controllers
     public class LoginController : ControllerBase
     {
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ResponseClienteRegistrado), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromServices] ILoginClienteUseCase useCase, [FromBody] RequestLoginCliente request)

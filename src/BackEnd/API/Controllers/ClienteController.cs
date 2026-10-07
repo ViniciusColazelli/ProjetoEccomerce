@@ -4,6 +4,7 @@ using Application.UseCases.Profile;
 using Application.UseCases.Registrar;
 using Application.UseCases.TrocarSenha;
 using Application.UseCases.Update;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -13,6 +14,7 @@ namespace API.Controllers
     public class ClienteController : ControllerBase
     {
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ResponseClienteRegistrado), StatusCodes.Status201Created)]
         public async Task<IActionResult> Registrar([FromServices] IRegistrarClienteUseCase useCase, [FromBody]RequestRegistrarCliente request)
         {
@@ -22,6 +24,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(typeof(ResponseClienteProfile), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserProfile([FromServices] IGetClienteProfileUseCase useCase)
         {
@@ -31,6 +34,7 @@ namespace API.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Atualizar([FromServices] IUpdateClienteUseCase useCase, [FromBody] RequestUpdateCliente request)
@@ -41,6 +45,7 @@ namespace API.Controllers
         }
 
         [HttpPut("change-password")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AlterarSenha([FromServices] ITrocarSenhaUseCase useCase, [FromBody] RequestTrocarSenha request)
