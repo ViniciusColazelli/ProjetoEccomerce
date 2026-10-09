@@ -1,4 +1,5 @@
-﻿using Application.Request;
+﻿using API.Extensions;
+using Application.Request;
 using Application.Response;
 using Application.UseCases.Profile;
 using Application.UseCases.Registrar;
@@ -6,6 +7,7 @@ using Application.UseCases.TrocarSenha;
 using Application.UseCases.Update;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.Controllers
 {
@@ -15,6 +17,7 @@ namespace API.Controllers
     {
         [HttpPost]
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitExtension.PoliticaAutenticacao)]
         [ProducesResponseType(typeof(ResponseClienteRegistrado), StatusCodes.Status201Created)]
         public async Task<IActionResult> Registrar([FromServices] IRegistrarClienteUseCase useCase, [FromBody]RequestRegistrarCliente request)
         {

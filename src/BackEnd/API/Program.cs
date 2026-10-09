@@ -3,6 +3,7 @@ using API.Extensions;
 using API.Filtros;
 using Application;
 using Infrastructure;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,14 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddRateLimitConfigurado();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 builder.Services.AddCors(options =>
 {
@@ -42,6 +51,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("FrontEnd");
+
+app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 

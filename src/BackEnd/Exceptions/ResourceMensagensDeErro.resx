@@ -135,6 +135,9 @@
   <data name="ERRO_DESCONHECIDO" xml:space="preserve">
     <value>Erro desconhecido</value>
   </data>
+  <data name="MUITAS_REQUISICOES" xml:space="preserve">
+    <value>Muitas requisições. Tente novamente em instantes.</value>
+  </data>
   <data name="NOME_VAZIO" xml:space="preserve">
     <value>Nome não pode ser vazio</value>
   </data>
