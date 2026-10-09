@@ -115,6 +115,15 @@ namespace Exceptions {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Muitas requisições. Tente novamente em instantes..
+        /// </summary>
+        public static string MUITAS_REQUISICOES {
+            get {
+                return ResourceManager.GetString("MUITAS_REQUISICOES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Nome não pode ser vazio.
         /// </summary>
         public static string NOME_VAZIO {
