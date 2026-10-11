@@ -3,9 +3,10 @@ using API.Extensions;
 using API.Filtros;
 using Application;
 using Infrastructure;
-using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseEnvironmentPort(); // implementação na extensão HostingExtension.cs
 
 // Add services to the container.
 
@@ -21,27 +22,12 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddRateLimitConfigurado();
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("FrontEnd", policy =>
-    {
-        policy
-            .WithOrigins(
-                "http://localhost:3000"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+builder.Services.AddForwardedHeadersConfigured();
+builder.Services.AddCorsConfigured(builder.Configuration);
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -50,14 +36,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("FrontEnd");
-
-app.UseRateLimiter();
+app.UseCors(CorsExtension.PoliticaFrontEnd);
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
+
+app.MapGet("/health", () => Results.Ok("ok")).DisableRateLimiting();
 
 app.MapControllers();
 
