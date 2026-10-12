@@ -52,6 +52,7 @@ namespace Infrastructure
         private static void AddRepositories(IServiceCollection services)
         {
             services.AddScoped<IClienteRepository, ClienteRepository>();
+            services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<ISalvarDBRepository, SalvarDBRepository>();
         }
 
