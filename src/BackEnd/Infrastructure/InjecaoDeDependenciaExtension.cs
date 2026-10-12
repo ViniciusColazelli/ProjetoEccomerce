@@ -94,6 +94,21 @@ namespace Infrastructure
                     ValidAudience = audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta))
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        // Authorization: Bearer continua valendo (Postman, testes); sem ele, lê o cookie
+                        if (!context.Request.Headers.ContainsKey("Authorization") &&
+                            context.Request.Cookies.TryGetValue(CookieAutenticacao.Nome, out var token))
+                        {
+                            context.Token = token;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             services.AddAuthorization();
