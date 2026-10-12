@@ -8,6 +8,7 @@ namespace Infrastructure.DataAcess
         public EccomerceDbContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Clientes> Clientes { get; set; }
+        public DbSet<Produtos> Produtos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
