@@ -141,6 +141,9 @@
   <data name="NOME_VAZIO" xml:space="preserve">
     <value>Nome não pode ser vazio</value>
   </data>
+  <data name="PAGINA_INVALIDA" xml:space="preserve">
+    <value>A página deve ser maior ou igual a 1.</value>
+  </data>
   <data name="SENHA_ATUAL_NAO_REGISTRADA" xml:space="preserve">
     <value>Não foi possível alterar a senha. Verifique sua senha atual e tente novamente.</value>
   </data>
@@ -149,5 +152,8 @@
   </data>
   <data name="SENHA_VAZIO" xml:space="preserve">
     <value>Senha não pode ser vazia</value>
+  </data>
+  <data name="TAMANHO_PAGINA_INVALIDO" xml:space="preserve">
+    <value>O tamanho da página deve estar entre 1 e 50.</value>
   </data>
 </root>

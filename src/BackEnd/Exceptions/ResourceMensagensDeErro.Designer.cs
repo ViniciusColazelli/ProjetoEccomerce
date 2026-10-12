@@ -133,6 +133,15 @@ namespace Exceptions {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A página deve ser maior ou igual a 1..
+        /// </summary>
+        public static string PAGINA_INVALIDA {
+            get {
+                return ResourceManager.GetString("PAGINA_INVALIDA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Não foi possível alterar a senha. Verifique sua senha atual e tente novamente..
         /// </summary>
         public static string SENHA_ATUAL_NAO_REGISTRADA {
@@ -156,6 +165,15 @@ namespace Exceptions {
         public static string SENHA_VAZIO {
             get {
                 return ResourceManager.GetString("SENHA_VAZIO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O tamanho da página deve estar entre 1 e 50..
+        /// </summary>
+        public static string TAMANHO_PAGINA_INVALIDO {
+            get {
+                return ResourceManager.GetString("TAMANHO_PAGINA_INVALIDO", resourceCulture);
             }
         }
     }

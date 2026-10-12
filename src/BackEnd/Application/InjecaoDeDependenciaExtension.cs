@@ -1,4 +1,5 @@
 ﻿using Application.UseCases.Login;
+using Application.UseCases.Produto.Listar;
 using Application.UseCases.Profile;
 using Application.UseCases.Registrar;
 using Application.UseCases.TrocarSenha;
@@ -21,6 +22,7 @@ namespace Application
             services.AddScoped<IUpdateClienteUseCase, UpdateClienteUseCase>();
             services.AddScoped<ITrocarSenhaUseCase, TrocarSenhaUseCase>();
             services.AddScoped<IGetClienteProfileUseCase, GetClienteProfileUseCase>();
+            services.AddScoped<IListarProdutosUseCase, ListarProdutosUseCase>();
 
         }
     }
