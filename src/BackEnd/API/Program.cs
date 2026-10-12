@@ -41,7 +41,11 @@ app.UseCors(CorsExtension.PoliticaFrontEnd);
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
-app.UseRateLimiter();
+
+// Nos testes de integração todas as requisições vêm do mesmo IP e estourariam o limite
+if (app.Environment.IsEnvironment("Testing") == false)
+    app.UseRateLimiter();
+
 app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok("ok")).DisableRateLimiting();
