@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ACESSO_NEGADO" xml:space="preserve">
+    <value>Você não tem permissão para realizar esta ação.</value>
+  </data>
   <data name="CLIENTE_NAO_LOGADO" xml:space="preserve">
     <value>Cliente não autenticado ou sessão inválida, tente novamente.</value>
   </data>
