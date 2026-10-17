@@ -61,6 +61,15 @@ namespace Exceptions {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Você não tem permissão para realizar esta ação..
+        /// </summary>
+        public static string ACESSO_NEGADO {
+            get {
+                return ResourceManager.GetString("ACESSO_NEGADO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Cliente não autenticado ou sessão inválida, tente novamente..
         /// </summary>
         public static string CLIENTE_NAO_LOGADO {

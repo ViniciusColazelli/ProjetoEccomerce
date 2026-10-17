@@ -2,6 +2,7 @@
 using Domain.Security.Criptografia;
 using Domain.Security.Tokens;
 using Domain.Services.ClienteLogado;
+using Exceptions;
 using FluentMigrator.Runner;
 using Infrastructure.DataAcess;
 using Infrastructure.DataAcess.Repositories;
@@ -9,6 +10,7 @@ using Infrastructure.Security.Criptografia;
 using Infrastructure.Security.Tokens;
 using Infrastructure.Services.ClienteLogado;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -108,6 +110,23 @@ namespace Infrastructure
                         }
 
                         return Task.CompletedTask;
+                    },
+                    // 401: sem token, token inválido ou expirado
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse(); // evita a resposta padrão, de corpo vazio
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await context.Response.WriteAsJsonAsync(
+                            new { errors = new[] { ResourceMensagensDeErro.CLIENTE_NAO_LOGADO } });
+                    },
+
+                    // 403: logado, mas sem o perfil exigido
+                    OnForbidden = async context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await context.Response.WriteAsJsonAsync(
+                            new { errors = new[] { ResourceMensagensDeErro.ACESSO_NEGADO } });
                     }
                 };
             });
