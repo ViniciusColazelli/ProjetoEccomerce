@@ -7,5 +7,8 @@ namespace Domain.Entities
         public string? Descricao { get; set; }
         public decimal PrecoBase { get; set; }
         public bool Ativo { get; set; }
+
+        public ICollection<ProdutoOpcoes> Opcoes { get; set; } = new List<ProdutoOpcoes>();
+        public ICollection<ProdutoVariantes> Variantes { get; set; } = new List<ProdutoVariantes>();
     }
 }

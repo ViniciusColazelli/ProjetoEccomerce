@@ -122,7 +122,16 @@ namespace Exceptions {
                 return ResourceManager.GetString("ERRO_DESCONHECIDO", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Estoque insuficiente para realizar esta operação..
+        /// </summary>
+        public static string ESTOQUE_INSUFICIENTE {
+            get {
+                return ResourceManager.GetString("ESTOQUE_INSUFICIENTE", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Muitas requisições. Tente novamente em instantes..
         /// </summary>
@@ -140,7 +149,25 @@ namespace Exceptions {
                 return ResourceManager.GetString("NOME_VAZIO", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Esta opção já está em uso em variantes ou pedidos e não pode ser removida. Desative-a..
+        /// </summary>
+        public static string OPCAO_EM_USO {
+            get {
+                return ResourceManager.GetString("OPCAO_EM_USO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Opção não encontrada..
+        /// </summary>
+        public static string OPCAO_NAO_ENCONTRADA {
+            get {
+                return ResourceManager.GetString("OPCAO_NAO_ENCONTRADA", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a A página deve ser maior ou igual a 1..
         /// </summary>
@@ -149,7 +176,16 @@ namespace Exceptions {
                 return ResourceManager.GetString("PAGINA_INVALIDA", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Produto não encontrado..
+        /// </summary>
+        public static string PRODUTO_NAO_ENCONTRADO {
+            get {
+                return ResourceManager.GetString("PRODUTO_NAO_ENCONTRADO", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Não foi possível alterar a senha. Verifique sua senha atual e tente novamente..
         /// </summary>
@@ -183,6 +219,15 @@ namespace Exceptions {
         public static string TAMANHO_PAGINA_INVALIDO {
             get {
                 return ResourceManager.GetString("TAMANHO_PAGINA_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Variante não encontrada..
+        /// </summary>
+        public static string VARIANTE_NAO_ENCONTRADA {
+            get {
+                return ResourceManager.GetString("VARIANTE_NAO_ENCONTRADA", resourceCulture);
             }
         }
     }

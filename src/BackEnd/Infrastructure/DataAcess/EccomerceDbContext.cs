@@ -10,6 +10,12 @@ namespace Infrastructure.DataAcess
         public DbSet<Clientes> Clientes { get; set; }
         public DbSet<Produtos> Produtos { get; set; }
 
+        // o nome do DbSet vira o nome da tabela (ToSnakeCase abaixo): ProdutoOpcoes -> produto_opcoes
+        public DbSet<ProdutoOpcoes> ProdutoOpcoes { get; set; }
+        public DbSet<ProdutoVariantes> ProdutoVariantes { get; set; }
+        public DbSet<Estoque> Estoque { get; set; }
+        public DbSet<EstoqueMovimentacoes> EstoqueMovimentacoes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(EccomerceDbContext).Assembly);

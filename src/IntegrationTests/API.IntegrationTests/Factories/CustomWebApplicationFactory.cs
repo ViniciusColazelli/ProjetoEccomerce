@@ -1,21 +1,13 @@
-﻿using Infrastructure.DataAcess;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace API.IntegrationTests.Factories
 {
+    // Usa o PostgreSQL real (Supabase de testes) configurado em appsettings.Testing.json,
+    // para que CHECK, índices únicos e FKs sejam validados nos testes.
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
-        private readonly string _dbName;
-
-        public CustomWebApplicationFactory(string dbName)
-        {
-            _dbName = dbName;
-        }
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureAppConfiguration((context, config) =>
@@ -26,23 +18,9 @@ namespace API.IntegrationTests.Factories
 
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
                 config.AddJsonFile("appsettings.Testing.json", optional: false, reloadOnChange: false);
+
+                // No CI a connection string vem de ConnectionStrings__ConnectionPostgreSql
                 config.AddEnvironmentVariables();
-            });
-
-            builder.ConfigureServices(services =>
-            {
-                // Remove o DbContext original (PostgreSQL)
-                var descriptor = services.SingleOrDefault(
-                    s => s.ServiceType == typeof(DbContextOptions<EccomerceDbContext>));
-
-                if (descriptor != null)
-                    services.Remove(descriptor);
-
-                // Substitui por InMemory com banco isolado por teste
-                services.AddDbContext<EccomerceDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase(_dbName);
-                });
             });
 
             builder.UseEnvironment("Testing");

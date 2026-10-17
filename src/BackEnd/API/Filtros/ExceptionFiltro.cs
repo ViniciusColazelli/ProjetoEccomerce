@@ -41,6 +41,16 @@ namespace API.Filtros
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 context.Result = new UnauthorizedObjectResult(new ResponseErro(context.Exception.Message));
             }
+            else if (context.Exception is NaoEncontradoException)
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Result = new NotFoundObjectResult(new ResponseErro(context.Exception.Message));
+            }
+            else if (context.Exception is ConflitoException)
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                context.Result = new ConflictObjectResult(new ResponseErro(context.Exception.Message));
+            }
         }
 
         private void ThrowExceptionDesconhecida(ExceptionContext context)
