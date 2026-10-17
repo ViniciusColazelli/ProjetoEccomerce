@@ -29,7 +29,8 @@ namespace Infrastructure.Security.Tokens
             {
                 new(ClaimTypes.NameIdentifier, cliente.Id.ToString()),
                 new(ClaimTypes.Name, cliente.Nome),
-                new(ClaimTypes.Email, cliente.Email)
+                new(ClaimTypes.Email, cliente.Email),
+                new(ClaimTypes.Role, cliente.Perfil)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_chaveSecreta));

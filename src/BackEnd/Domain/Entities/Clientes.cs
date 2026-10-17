@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities
+﻿using Domain.Security.Perfis;
+
+namespace Domain.Entities
 {
     public class Clientes
     {
@@ -6,5 +8,6 @@
         public string Nome { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Senha { get; set; } = string.Empty;
+        public string Perfil { get; set; } = Perfis.Cliente;
     }
 }
