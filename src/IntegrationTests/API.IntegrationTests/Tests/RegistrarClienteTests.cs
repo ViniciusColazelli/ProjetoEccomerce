@@ -8,15 +8,11 @@ using Xunit;
 
 namespace API.IntegrationTests.Tests
 {
-    public class RegistrarClienteTests : IClassFixture<EcommerceFixture>
+    public class RegistrarClienteTests : BaseTesteIntegracao
     {
-        private readonly EcommerceFixture _fixture;
         private const string ENDPOINT = "/api/cliente";
 
-        public RegistrarClienteTests(EcommerceFixture fixture)
-        {
-            _fixture = fixture;
-        }
+        public RegistrarClienteTests(EcommerceFixture fixture) : base(fixture) { }
 
         // ════════════════════════════════════════════════════════════════
         // FLUXO FELIZ

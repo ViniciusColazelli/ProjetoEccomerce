@@ -9,15 +9,11 @@ using Xunit;
 
 namespace API.IntegrationTests.Tests
 {
-    public class ListarProdutosTests : IClassFixture<EcommerceFixture>
+    public class ListarProdutosTests : BaseTesteIntegracao
     {
-        private readonly EcommerceFixture _fixture;
         private const string ENDPOINT = "/api/produto";
 
-        public ListarProdutosTests(EcommerceFixture fixture)
-        {
-            _fixture = fixture;
-        }
+        public ListarProdutosTests(EcommerceFixture fixture) : base(fixture) { }
 
         // ════════════════════════════════════════════════════════════════
         // FLUXO FELIZ
@@ -164,14 +160,12 @@ namespace API.IntegrationTests.Tests
         // HELPERS
         // ════════════════════════════════════════════════════════════════
 
-        // O banco é compartilhado entre os testes desta classe (IClassFixture),
-        // então cada teste limpa a tabela antes de inserir os próprios produtos.
+        // O banco já chega limpo em cada teste (BaseTesteIntegracao)
         private async Task PrepararProdutos(CancellationToken ct, params Produtos[] produtos)
         {
             using var scope = _fixture.CriarScope();
             var dbContext = _fixture.GetDbContext(scope);
 
-            dbContext.Produtos.RemoveRange(dbContext.Produtos);
             await dbContext.Produtos.AddRangeAsync(produtos, ct);
             await dbContext.SaveChangesAsync(ct);
         }
