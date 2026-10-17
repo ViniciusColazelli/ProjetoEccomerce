@@ -3,6 +3,7 @@ using API.Extensions;
 using API.Filtros;
 using Application;
 using Infrastructure;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,13 @@ builder.WebHost.UseEnvironmentPort(); // implementação na extensão HostingExt
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new StringConverter()));
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new StringConverter());
+
+    // Enums trafegam pelo nome ("Tamanho", "Entrada") e não pelo número
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerComJwt();
 
