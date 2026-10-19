@@ -120,8 +120,14 @@
   <data name="ACESSO_NEGADO" xml:space="preserve">
     <value>Você não tem permissão para realizar esta ação.</value>
   </data>
+  <data name="BUSCA_NOME_MUITO_LONGA" xml:space="preserve">
+    <value>A busca por nome deve ter no máximo 200 caracteres.</value>
+  </data>
   <data name="CLIENTE_NAO_LOGADO" xml:space="preserve">
     <value>Cliente não autenticado ou sessão inválida, tente novamente.</value>
+  </data>
+  <data name="DIRECAO_INVALIDA" xml:space="preserve">
+    <value>Direção inválida. Use asc ou desc.</value>
   </data>
   <data name="EMAIL_INVALIDO" xml:space="preserve">
     <value>O e-mail é invalido</value>
@@ -152,6 +158,9 @@
   </data>
   <data name="OPCAO_NAO_ENCONTRADA" xml:space="preserve">
     <value>Opção não encontrada.</value>
+  </data>
+  <data name="ORDENACAO_INVALIDA" xml:space="preserve">
+    <value>Ordenação inválida. Use nome ou preco.</value>
   </data>
   <data name="PAGINA_INVALIDA" xml:space="preserve">
     <value>A página deve ser maior ou igual a 1.</value>

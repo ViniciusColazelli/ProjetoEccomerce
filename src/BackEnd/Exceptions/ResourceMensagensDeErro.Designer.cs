@@ -68,7 +68,16 @@ namespace Exceptions {
                 return ResourceManager.GetString("ACESSO_NEGADO", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A busca por nome deve ter no máximo 200 caracteres..
+        /// </summary>
+        public static string BUSCA_NOME_MUITO_LONGA {
+            get {
+                return ResourceManager.GetString("BUSCA_NOME_MUITO_LONGA", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Cliente não autenticado ou sessão inválida, tente novamente..
         /// </summary>
@@ -77,7 +86,16 @@ namespace Exceptions {
                 return ResourceManager.GetString("CLIENTE_NAO_LOGADO", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Direção inválida. Use asc ou desc..
+        /// </summary>
+        public static string DIRECAO_INVALIDA {
+            get {
+                return ResourceManager.GetString("DIRECAO_INVALIDA", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a O e-mail é invalido.
         /// </summary>
@@ -165,6 +183,15 @@ namespace Exceptions {
         public static string OPCAO_NAO_ENCONTRADA {
             get {
                 return ResourceManager.GetString("OPCAO_NAO_ENCONTRADA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Ordenação inválida. Use nome ou preco..
+        /// </summary>
+        public static string ORDENACAO_INVALIDA {
+            get {
+                return ResourceManager.GetString("ORDENACAO_INVALIDA", resourceCulture);
             }
         }
 
