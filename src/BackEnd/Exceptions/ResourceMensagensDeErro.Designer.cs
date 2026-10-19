@@ -88,6 +88,15 @@ namespace Exceptions {
         }
 
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A descrição deve ter no máximo 1000 caracteres..
+        /// </summary>
+        public static string DESCRICAO_MUITO_LONGA {
+            get {
+                return ResourceManager.GetString("DESCRICAO_MUITO_LONGA", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Direção inválida. Use asc ou desc..
         /// </summary>
         public static string DIRECAO_INVALIDA {
@@ -158,6 +167,15 @@ namespace Exceptions {
                 return ResourceManager.GetString("MUITAS_REQUISICOES", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O nome deve ter no máximo 200 caracteres..
+        /// </summary>
+        public static string NOME_MUITO_LONGO {
+            get {
+                return ResourceManager.GetString("NOME_MUITO_LONGO", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Nome não pode ser vazio.
@@ -174,6 +192,15 @@ namespace Exceptions {
         public static string OPCAO_EM_USO {
             get {
                 return ResourceManager.GetString("OPCAO_EM_USO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Esta opção já está cadastrada neste produto..
+        /// </summary>
+        public static string OPCAO_JA_CADASTRADA {
+            get {
+                return ResourceManager.GetString("OPCAO_JA_CADASTRADA", resourceCulture);
             }
         }
 
@@ -205,11 +232,47 @@ namespace Exceptions {
         }
 
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O preço adicional não pode ser negativo..
+        /// </summary>
+        public static string PRECO_ADICIONAL_INVALIDO {
+            get {
+                return ResourceManager.GetString("PRECO_ADICIONAL_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O preço deve ter no máximo 8 dígitos inteiros e 2 casas decimais..
+        /// </summary>
+        public static string PRECO_FORMATO_INVALIDO {
+            get {
+                return ResourceManager.GetString("PRECO_FORMATO_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O preço base deve ser maior que zero..
+        /// </summary>
+        public static string PRECO_INVALIDO {
+            get {
+                return ResourceManager.GetString("PRECO_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Produto não encontrado..
         /// </summary>
         public static string PRODUTO_NAO_ENCONTRADO {
             get {
                 return ResourceManager.GetString("PRODUTO_NAO_ENCONTRADO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Cadastre ao menos um tamanho ativo antes de gerar as variantes..
+        /// </summary>
+        public static string SEM_TAMANHO_ATIVO {
+            get {
+                return ResourceManager.GetString("SEM_TAMANHO_ATIVO", resourceCulture);
             }
         }
 
@@ -246,6 +309,33 @@ namespace Exceptions {
         public static string TAMANHO_PAGINA_INVALIDO {
             get {
                 return ResourceManager.GetString("TAMANHO_PAGINA_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Tipo inválido. Use Tamanho, Cor ou Personalizacao..
+        /// </summary>
+        public static string TIPO_OPCAO_INVALIDO {
+            get {
+                return ResourceManager.GetString("TIPO_OPCAO_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O valor da opção deve ter no máximo 200 caracteres..
+        /// </summary>
+        public static string VALOR_OPCAO_MUITO_LONGO {
+            get {
+                return ResourceManager.GetString("VALOR_OPCAO_MUITO_LONGO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O valor da opção não pode ser vazio..
+        /// </summary>
+        public static string VALOR_OPCAO_VAZIO {
+            get {
+                return ResourceManager.GetString("VALOR_OPCAO_VAZIO", resourceCulture);
             }
         }
 

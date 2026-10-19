@@ -30,5 +30,37 @@ namespace Application.Services.Mapeamento
                 TamanhoPagina = request.TamanhoPagina
             };
         }
+
+        public static FiltroListagemProdutos RequestParaFiltroAdmin(RequestListarProdutosAdmin request)
+        {
+            var filtro = RequestParaFiltro(request);
+
+            filtro.Ativo = request.Ativo;
+
+            return filtro;
+        }
+
+        public static Produtos RequestParaEntidade(RequestRegistrarProduto request)
+        {
+            return new Produtos
+            {
+                Nome = request.Nome,
+                Descricao = request.Descricao,
+                PrecoBase = request.PrecoBase,
+                Ativo = true
+            };
+        }
+
+        public static ProdutoOpcoes RequestParaEntidade(RequestRegistrarOpcao request, int produtoId)
+        {
+            return new ProdutoOpcoes
+            {
+                ProdutoId = produtoId,
+                Tipo = Enum.Parse<TipoOpcao>(request.Tipo, ignoreCase: true),
+                Valor = request.Valor,
+                PrecoAdicional = request.PrecoAdicional,
+                Ativo = true
+            };
+        }
     }
 }

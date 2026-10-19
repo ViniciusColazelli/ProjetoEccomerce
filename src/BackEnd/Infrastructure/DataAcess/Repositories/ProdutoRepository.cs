@@ -18,10 +18,7 @@ namespace Infrastructure.DataAcess.Repositories
 
         public async Task<IList<Produtos>> ListarAtivos(FiltroListagemProdutos filtro)
         {
-            return await Ordenar(ConsultarAtivos(filtro), filtro)
-                .Skip((filtro.Pagina - 1) * filtro.TamanhoPagina)
-                .Take(filtro.TamanhoPagina)
-                .ToListAsync();
+            return await Paginar(Ordenar(ConsultarAtivos(filtro), filtro), filtro).ToListAsync();
         }
 
         public async Task<int> ContarAtivos(FiltroListagemProdutos filtro)
@@ -43,13 +40,70 @@ namespace Infrastructure.DataAcess.Repositories
                 .FirstOrDefaultAsync(produto => produto.Id == id && produto.Ativo);
         }
 
-        // listagem e contagem usam a mesma consulta para o total bater com os filtros
+        public async Task<IList<Produtos>> ListarTodos(FiltroListagemProdutos filtro)
+        {
+            return await Paginar(Ordenar(ConsultarTodos(filtro), filtro), filtro).ToListAsync();
+        }
+
+        public async Task<int> ContarTodos(FiltroListagemProdutos filtro)
+        {
+            return await ConsultarTodos(filtro).CountAsync();
+        }
+
+        public async Task<Produtos?> ObterComDetalhes(int id)
+        {
+            return await _dbcontext.Produtos
+                .AsNoTracking()
+                .Include(produto => produto.Opcoes)
+                .Include(produto => produto.Variantes).ThenInclude(variante => variante.TamanhoOpcao)
+                .Include(produto => produto.Variantes).ThenInclude(variante => variante.CorOpcao)
+                .Include(produto => produto.Variantes).ThenInclude(variante => variante.Estoque)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(produto => produto.Id == id);
+        }
+
+        public async Task<Produtos?> GetById(int id)
+        {
+            return await _dbcontext.Produtos.FirstOrDefaultAsync(produto => produto.Id == id);
+        }
+
+        public async Task<bool> Existe(int id)
+        {
+            return await _dbcontext.Produtos.AnyAsync(produto => produto.Id == id);
+        }
+
+        public async Task Adicionar(Produtos produto)
+        {
+            await _dbcontext.Produtos.AddAsync(produto);
+        }
+
+        public void Update(Produtos produto)
+        {
+            _dbcontext.Produtos.Update(produto);
+        }
+
         private IQueryable<Produtos> ConsultarAtivos(FiltroListagemProdutos filtro)
         {
             var consulta = _dbcontext.Produtos
                 .AsNoTracking()
                 .Where(produto => produto.Ativo);
 
+            return Filtrar(consulta, filtro);
+        }
+
+        private IQueryable<Produtos> ConsultarTodos(FiltroListagemProdutos filtro)
+        {
+            var consulta = _dbcontext.Produtos.AsNoTracking();
+
+            if (filtro.Ativo.HasValue)
+                consulta = consulta.Where(produto => produto.Ativo == filtro.Ativo.Value);
+
+            return Filtrar(consulta, filtro);
+        }
+
+        // listagem e contagem usam os mesmos filtros para o total bater
+        private static IQueryable<Produtos> Filtrar(IQueryable<Produtos> consulta, FiltroListagemProdutos filtro)
+        {
             if (string.IsNullOrWhiteSpace(filtro.Nome).IsFalse())
             {
                 var nome = filtro.Nome!.Trim().ToLower();
@@ -78,6 +132,13 @@ namespace Infrastructure.DataAcess.Repositories
                 (_, true) => consulta.OrderByDescending(produto => produto.Nome).ThenBy(produto => produto.Id),
                 _ => consulta.OrderBy(produto => produto.Nome).ThenBy(produto => produto.Id)
             };
+        }
+
+        private static IQueryable<Produtos> Paginar(IQueryable<Produtos> consulta, FiltroListagemProdutos filtro)
+        {
+            return consulta
+                .Skip((filtro.Pagina - 1) * filtro.TamanhoPagina)
+                .Take(filtro.TamanhoPagina);
         }
     }
 }
