@@ -120,8 +120,17 @@
   <data name="ACESSO_NEGADO" xml:space="preserve">
     <value>Você não tem permissão para realizar esta ação.</value>
   </data>
+  <data name="BUSCA_NOME_MUITO_LONGA" xml:space="preserve">
+    <value>A busca por nome deve ter no máximo 200 caracteres.</value>
+  </data>
   <data name="CLIENTE_NAO_LOGADO" xml:space="preserve">
     <value>Cliente não autenticado ou sessão inválida, tente novamente.</value>
+  </data>
+  <data name="DESCRICAO_MUITO_LONGA" xml:space="preserve">
+    <value>A descrição deve ter no máximo 1000 caracteres.</value>
+  </data>
+  <data name="DIRECAO_INVALIDA" xml:space="preserve">
+    <value>Direção inválida. Use asc ou desc.</value>
   </data>
   <data name="EMAIL_INVALIDO" xml:space="preserve">
     <value>O e-mail é invalido</value>
@@ -144,20 +153,41 @@
   <data name="MUITAS_REQUISICOES" xml:space="preserve">
     <value>Muitas requisições. Tente novamente em instantes.</value>
   </data>
+  <data name="NOME_MUITO_LONGO" xml:space="preserve">
+    <value>O nome deve ter no máximo 200 caracteres.</value>
+  </data>
   <data name="NOME_VAZIO" xml:space="preserve">
     <value>Nome não pode ser vazio</value>
   </data>
   <data name="OPCAO_EM_USO" xml:space="preserve">
     <value>Esta opção já está em uso em variantes ou pedidos e não pode ser removida. Desative-a.</value>
   </data>
+  <data name="OPCAO_JA_CADASTRADA" xml:space="preserve">
+    <value>Esta opção já está cadastrada neste produto.</value>
+  </data>
   <data name="OPCAO_NAO_ENCONTRADA" xml:space="preserve">
     <value>Opção não encontrada.</value>
+  </data>
+  <data name="ORDENACAO_INVALIDA" xml:space="preserve">
+    <value>Ordenação inválida. Use nome ou preco.</value>
   </data>
   <data name="PAGINA_INVALIDA" xml:space="preserve">
     <value>A página deve ser maior ou igual a 1.</value>
   </data>
+  <data name="PRECO_ADICIONAL_INVALIDO" xml:space="preserve">
+    <value>O preço adicional não pode ser negativo.</value>
+  </data>
+  <data name="PRECO_FORMATO_INVALIDO" xml:space="preserve">
+    <value>O preço deve ter no máximo 8 dígitos inteiros e 2 casas decimais.</value>
+  </data>
+  <data name="PRECO_INVALIDO" xml:space="preserve">
+    <value>O preço base deve ser maior que zero.</value>
+  </data>
   <data name="PRODUTO_NAO_ENCONTRADO" xml:space="preserve">
     <value>Produto não encontrado.</value>
+  </data>
+  <data name="SEM_TAMANHO_ATIVO" xml:space="preserve">
+    <value>Cadastre ao menos um tamanho ativo antes de gerar as variantes.</value>
   </data>
   <data name="SENHA_ATUAL_NAO_REGISTRADA" xml:space="preserve">
     <value>Não foi possível alterar a senha. Verifique sua senha atual e tente novamente.</value>
@@ -170,6 +200,15 @@
   </data>
   <data name="TAMANHO_PAGINA_INVALIDO" xml:space="preserve">
     <value>O tamanho da página deve estar entre 1 e 50.</value>
+  </data>
+  <data name="TIPO_OPCAO_INVALIDO" xml:space="preserve">
+    <value>Tipo inválido. Use Tamanho, Cor ou Personalizacao.</value>
+  </data>
+  <data name="VALOR_OPCAO_MUITO_LONGO" xml:space="preserve">
+    <value>O valor da opção deve ter no máximo 200 caracteres.</value>
+  </data>
+  <data name="VALOR_OPCAO_VAZIO" xml:space="preserve">
+    <value>O valor da opção não pode ser vazio.</value>
   </data>
   <data name="VARIANTE_NAO_ENCONTRADA" xml:space="preserve">
     <value>Variante não encontrada.</value>

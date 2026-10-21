@@ -1,11 +1,16 @@
 ﻿using API.IntegrationTests.Factories;
+using Domain.Entities;
 using Domain.Security.Criptografia;
+using Domain.Security.Tokens;
 using Infrastructure.DataAcess;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Respawn;
 using Respawn.Graph;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Xunit;
 
 namespace API.IntegrationTests.Fixture
@@ -19,6 +24,12 @@ namespace API.IntegrationTests.Fixture
         private string _connectionString = string.Empty;
 
         public HttpClient Client { get; private set; } = null!;
+
+        // mesmas opções da API (Program.cs): enums trafegam pelo nome
+        public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+        {
+            Converters = { new JsonStringEnumConverter() }
+        };
 
         // ── Chamado UMA vez, antes do primeiro teste ──────────────────
         public async ValueTask InitializeAsync()
@@ -69,5 +80,31 @@ namespace API.IntegrationTests.Fixture
 
         public ISenhaCriptografada GetCriptografia(IServiceScope scope) =>
             scope.ServiceProvider.GetRequiredService<ISenhaCriptografada>();
+
+        // Grava um cliente com o perfil informado e devolve um HttpClient já autenticado com o token dele.
+        // Chamar dentro do teste: o banco é limpo antes de cada um.
+        public async Task<HttpClient> CriarClientAutenticado(string perfil)
+        {
+            using var scope = CriarScope();
+            var dbContext = GetDbContext(scope);
+
+            var cliente = new Clientes
+            {
+                Nome = $"Teste {perfil}",
+                Email = $"{Guid.NewGuid():N}@teste.com",
+                Senha = "nao-utilizada",
+                Perfil = perfil
+            };
+
+            dbContext.Clientes.Add(cliente);
+            await dbContext.SaveChangesAsync();
+
+            var token = scope.ServiceProvider.GetRequiredService<IGeradorTokenJwt>().GerarToken(cliente);
+
+            var client = _factory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            return client;
+        }
     }
 }
