@@ -150,6 +150,12 @@
   <data name="ESTOQUE_INSUFICIENTE" xml:space="preserve">
     <value>Estoque insuficiente para realizar esta operação.</value>
   </data>
+  <data name="MOTIVO_MUITO_LONGO" xml:space="preserve">
+    <value>O motivo deve ter no máximo 200 caracteres.</value>
+  </data>
+  <data name="MOTIVO_OBRIGATORIO" xml:space="preserve">
+    <value>Informe o motivo da movimentação.</value>
+  </data>
   <data name="MUITAS_REQUISICOES" xml:space="preserve">
     <value>Muitas requisições. Tente novamente em instantes.</value>
   </data>
@@ -185,6 +191,9 @@
   </data>
   <data name="PRODUTO_NAO_ENCONTRADO" xml:space="preserve">
     <value>Produto não encontrado.</value>
+  </data>
+  <data name="QUANTIDADE_INVALIDA" xml:space="preserve">
+    <value>A quantidade deve ser maior que zero.</value>
   </data>
   <data name="REGISTRO_ALTERADO_POR_OUTRA_OPERACAO" xml:space="preserve">
     <value>Este registro foi alterado por outra operação. Tente novamente.</value>

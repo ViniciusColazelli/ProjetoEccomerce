@@ -1,9 +1,11 @@
 using API.IntegrationTests.Fixture;
+using Application.Request;
 using Application.Response;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Security.Perfis;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -165,6 +167,185 @@ namespace API.IntegrationTests.Tests
 
             var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
             body.GetProperty("errors")[0].GetString().Should().Be("Variante não encontrada.");
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // ENTRADA
+        // ════════════════════════════════════════════════════════════════
+
+        [Fact]
+        public async Task Should_SomarAoSaldoEGravarMovimentacao_When_Entrada()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: 5);
+            var request = new RequestMovimentarEstoque { Quantidade = 10, Motivo = "  Reposição  " };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/entrada", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var body = await response.Content.ReadFromJsonAsync<ResponseEstoqueVariante>(ct);
+            body!.Quantidade.Should().Be(15);
+
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+            (await dbContext.Estoque.SingleAsync(ct)).Quantidade.Should().Be(15);
+
+            var movimentacao = await dbContext.EstoqueMovimentacoes.SingleAsync(ct);
+            movimentacao.VarianteId.Should().Be(variante.Id);
+            movimentacao.Tipo.Should().Be(TipoMovimentacao.Entrada);
+            movimentacao.Quantidade.Should().Be(10);
+            movimentacao.Motivo.Should().Be("Reposição");
+        }
+
+        [Fact]
+        public async Task Should_CriarLinhaDeEstoque_When_EntradaEmVarianteSemEstoque()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: null);
+            var request = new RequestMovimentarEstoque { Quantidade = 3, Motivo = "Estoque inicial" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/entrada", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            using var scope = _fixture.CriarScope();
+            var estoque = await _fixture.GetDbContext(scope).Estoque.SingleAsync(ct);
+            estoque.VarianteId.Should().Be(variante.Id);
+            estoque.Quantidade.Should().Be(3);
+        }
+
+        [Theory]
+        [InlineData(0, "Reposição", "A quantidade deve ser maior que zero.")]
+        [InlineData(-1, "Reposição", "A quantidade deve ser maior que zero.")]
+        [InlineData(5, "   ", "Informe o motivo da movimentação.")]
+        public async Task Should_Return400_When_MovimentacaoInvalida(int quantidade, string motivo, string mensagemEsperada)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: 5);
+            var request = new RequestMovimentarEstoque { Quantidade = quantidade, Motivo = motivo };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/entrada", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            body.GetProperty("errors")[0].GetString().Should().Be(mensagemEsperada);
+        }
+
+        [Fact]
+        public async Task Should_Return404_When_EntradaEmVarianteInexistente()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var request = new RequestMovimentarEstoque { Quantidade = 1, Motivo = "Reposição" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/999999/entrada", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task Should_Return403_When_EntradaComPerfilCliente()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Cliente);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: 5);
+            var request = new RequestMovimentarEstoque { Quantidade = 1, Motivo = "Reposição" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/entrada", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // SAÍDA
+        // ════════════════════════════════════════════════════════════════
+
+        [Fact]
+        public async Task Should_SubtrairDoSaldoEGravarMovimentacao_When_Saida()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: 5);
+            var request = new RequestMovimentarEstoque { Quantidade = 5, Motivo = "Peça danificada" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/saida", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var body = await response.Content.ReadFromJsonAsync<ResponseEstoqueVariante>(ct);
+            body!.Quantidade.Should().Be(0);
+
+            using var scope = _fixture.CriarScope();
+            var movimentacao = await _fixture.GetDbContext(scope).EstoqueMovimentacoes.SingleAsync(ct);
+            movimentacao.Tipo.Should().Be(TipoMovimentacao.Saida);
+            movimentacao.Quantidade.Should().Be(5);
+            movimentacao.Motivo.Should().Be("Peça danificada");
+        }
+
+        [Fact]
+        public async Task Should_Return409ENaoAlterarNada_When_SaidaMaiorQueSaldo()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: 2);
+            var request = new RequestMovimentarEstoque { Quantidade = 3, Motivo = "Perda" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/saida", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            body.GetProperty("errors")[0].GetString().Should().Be("Estoque insuficiente para realizar esta operação.");
+
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+            (await dbContext.Estoque.SingleAsync(ct)).Quantidade.Should().Be(2);
+            (await dbContext.EstoqueMovimentacoes.CountAsync(ct)).Should().Be(0);
+        }
+
+        [Fact]
+        public async Task Should_Return409_When_SaidaEmVarianteSemEstoque()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: null);
+            var request = new RequestMovimentarEstoque { Quantidade = 1, Motivo = "Perda" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/saida", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+            using var scope = _fixture.CriarScope();
+            (await _fixture.GetDbContext(scope).Estoque.CountAsync(ct)).Should().Be(0);
         }
 
         // ════════════════════════════════════════════════════════════════

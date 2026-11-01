@@ -1,6 +1,8 @@
 ﻿using Application.Services.MovimentarEstoque;
+using Application.UseCases.EstoqueVariante.Entrada;
 using Application.UseCases.EstoqueVariante.Listar;
 using Application.UseCases.EstoqueVariante.Obter;
+using Application.UseCases.EstoqueVariante.Saida;
 using Application.UseCases.Login;
 using Application.UseCases.Produto.AlterarStatus;
 using Application.UseCases.Produto.Listar;
@@ -58,6 +60,8 @@ namespace Application
             services.AddScoped<IAlterarStatusVarianteUseCase, AlterarStatusVarianteUseCase>();
             services.AddScoped<IListarEstoqueUseCase, ListarEstoqueUseCase>();
             services.AddScoped<IObterEstoqueUseCase, ObterEstoqueUseCase>();
+            services.AddScoped<IEntradaEstoqueUseCase, EntradaEstoqueUseCase>();
+            services.AddScoped<ISaidaEstoqueUseCase, SaidaEstoqueUseCase>();
 
         }
     }

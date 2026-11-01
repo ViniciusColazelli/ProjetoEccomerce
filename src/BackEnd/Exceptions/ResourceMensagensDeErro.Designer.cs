@@ -160,6 +160,24 @@ namespace Exceptions {
         }
 
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O motivo deve ter no máximo 200 caracteres..
+        /// </summary>
+        public static string MOTIVO_MUITO_LONGO {
+            get {
+                return ResourceManager.GetString("MOTIVO_MUITO_LONGO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Informe o motivo da movimentação..
+        /// </summary>
+        public static string MOTIVO_OBRIGATORIO {
+            get {
+                return ResourceManager.GetString("MOTIVO_OBRIGATORIO", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Muitas requisições. Tente novamente em instantes..
         /// </summary>
         public static string MUITAS_REQUISICOES {
@@ -264,6 +282,15 @@ namespace Exceptions {
         public static string PRODUTO_NAO_ENCONTRADO {
             get {
                 return ResourceManager.GetString("PRODUTO_NAO_ENCONTRADO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A quantidade deve ser maior que zero..
+        /// </summary>
+        public static string QUANTIDADE_INVALIDA {
+            get {
+                return ResourceManager.GetString("QUANTIDADE_INVALIDA", resourceCulture);
             }
         }
 
