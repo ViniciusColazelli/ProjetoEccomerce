@@ -6,6 +6,8 @@ namespace Domain.Repositories
     {
         public Task<ProdutoVariantes?> GetById(int produtoId, int varianteId);
 
+        public Task<bool> Existe(int varianteId);
+
         public Task<IList<ProdutoVariantes>> ListarPorProduto(int produtoId);
 
         public Task Adicionar(IList<ProdutoVariantes> variantes);

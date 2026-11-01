@@ -1,4 +1,5 @@
-﻿using Application.UseCases.Login;
+﻿using Application.Services.MovimentarEstoque;
+using Application.UseCases.Login;
 using Application.UseCases.Produto.AlterarStatus;
 using Application.UseCases.Produto.Listar;
 using Application.UseCases.Produto.ListarAdmin;
@@ -25,6 +26,12 @@ namespace Application
         public static void AddApplication(this IServiceCollection services)
         {
             AddUseCases(services);
+            AddServices(services);
+        }
+
+        private static void AddServices(this IServiceCollection services)
+        {
+            services.AddScoped<IMovimentarEstoque, MovimentarEstoque>();
         }
 
         private static void AddUseCases(this IServiceCollection services)

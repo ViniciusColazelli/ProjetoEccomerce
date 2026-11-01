@@ -18,6 +18,11 @@ namespace Infrastructure.DataAcess.Repositories
             return await _dbcontext.ProdutoVariantes.FirstOrDefaultAsync(variante => variante.Id == varianteId && variante.ProdutoId == produtoId);
         }
 
+        public async Task<bool> Existe(int varianteId)
+        {
+            return await _dbcontext.ProdutoVariantes.AnyAsync(variante => variante.Id == varianteId);
+        }
+
         public async Task<IList<ProdutoVariantes>> ListarPorProduto(int produtoId)
         {
             return await _dbcontext.ProdutoVariantes
