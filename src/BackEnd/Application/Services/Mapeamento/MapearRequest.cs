@@ -40,6 +40,17 @@ namespace Application.Services.Mapeamento
             return filtro;
         }
 
+        public static FiltroListagemEstoque RequestParaFiltro(RequestListarEstoque request)
+        {
+            return new FiltroListagemEstoque
+            {
+                ProdutoId = request.ProdutoId,
+                SomenteZerados = request.SomenteZerados,
+                Pagina = request.Pagina,
+                TamanhoPagina = request.TamanhoPagina
+            };
+        }
+
         public static Produtos RequestParaEntidade(RequestRegistrarProduto request)
         {
             return new Produtos

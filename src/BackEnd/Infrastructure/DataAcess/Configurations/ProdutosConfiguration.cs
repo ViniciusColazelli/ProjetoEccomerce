@@ -13,7 +13,7 @@ namespace Infrastructure.DataAcess.Configurations
                 .HasForeignKey(opcao => opcao.ProdutoId);
 
             builder.HasMany(produto => produto.Variantes)
-                .WithOne()
+                .WithOne(variante => variante.Produto)
                 .HasForeignKey(variante => variante.ProdutoId);
         }
     }

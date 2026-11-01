@@ -9,6 +9,7 @@ namespace Domain.Entities
         public int? CorOpcaoId { get; set; }
         public bool Ativo { get; set; } = true;
 
+        public Produtos Produto { get; set; } = null!;
         public ProdutoOpcoes TamanhoOpcao { get; set; } = null!;
         public ProdutoOpcoes? CorOpcao { get; set; }
         public Estoque? Estoque { get; set; }

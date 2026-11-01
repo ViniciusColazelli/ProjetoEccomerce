@@ -1,4 +1,5 @@
 using Domain.Entities;
+using Domain.Filtros;
 
 namespace Domain.Repositories
 {
@@ -9,6 +10,12 @@ namespace Domain.Repositories
         public Task<bool> Existe(int varianteId);
 
         public Task<IList<ProdutoVariantes>> ListarPorProduto(int produtoId);
+
+        public Task<IList<ProdutoVariantes>> ListarComEstoque(FiltroListagemEstoque filtro);
+
+        public Task<int> ContarComEstoque(FiltroListagemEstoque filtro);
+
+        public Task<ProdutoVariantes?> ObterComEstoque(int varianteId);
 
         public Task Adicionar(IList<ProdutoVariantes> variantes);
 
