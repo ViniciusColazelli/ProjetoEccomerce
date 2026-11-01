@@ -268,6 +268,15 @@ namespace Exceptions {
         }
 
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Este registro foi alterado por outra operação. Tente novamente..
+        /// </summary>
+        public static string REGISTRO_ALTERADO_POR_OUTRA_OPERACAO {
+            get {
+                return ResourceManager.GetString("REGISTRO_ALTERADO_POR_OUTRA_OPERACAO", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Cadastre ao menos um tamanho ativo antes de gerar as variantes..
         /// </summary>
         public static string SEM_TAMANHO_ATIVO {

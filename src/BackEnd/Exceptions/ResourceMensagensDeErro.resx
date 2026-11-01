@@ -186,6 +186,9 @@
   <data name="PRODUTO_NAO_ENCONTRADO" xml:space="preserve">
     <value>Produto não encontrado.</value>
   </data>
+  <data name="REGISTRO_ALTERADO_POR_OUTRA_OPERACAO" xml:space="preserve">
+    <value>Este registro foi alterado por outra operação. Tente novamente.</value>
+  </data>
   <data name="SEM_TAMANHO_ATIVO" xml:space="preserve">
     <value>Cadastre ao menos um tamanho ativo antes de gerar as variantes.</value>
   </data>
