@@ -13,6 +13,8 @@ namespace API.Controllers
     [Route("api/admin/produto/{produtoId:int}/opcao")]
     [ApiController]
     [Authorize(Roles = Perfis.Admin)]
+    [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status403Forbidden)]
     public class AdminProdutoOpcaoController : ControllerBase
     {
         [HttpPost]
