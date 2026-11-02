@@ -70,6 +70,15 @@ namespace Exceptions {
         }
 
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A quantidade contada é igual ao saldo atual. Não há ajuste a fazer..
+        /// </summary>
+        public static string AJUSTE_SEM_DIFERENCA {
+            get {
+                return ResourceManager.GetString("AJUSTE_SEM_DIFERENCA", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a A busca por nome deve ter no máximo 200 caracteres..
         /// </summary>
         public static string BUSCA_NOME_MUITO_LONGA {
@@ -205,6 +214,15 @@ namespace Exceptions {
         }
 
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A quantidade contada não pode ser negativa..
+        /// </summary>
+        public static string NOVA_QUANTIDADE_INVALIDA {
+            get {
+                return ResourceManager.GetString("NOVA_QUANTIDADE_INVALIDA", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Esta opção já está em uso em variantes ou pedidos e não pode ser removida. Desative-a..
         /// </summary>
         public static string OPCAO_EM_USO {
@@ -246,6 +264,15 @@ namespace Exceptions {
         public static string PAGINA_INVALIDA {
             get {
                 return ResourceManager.GetString("PAGINA_INVALIDA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A data inicial deve ser menor ou igual à data final..
+        /// </summary>
+        public static string PERIODO_INVALIDO {
+            get {
+                return ResourceManager.GetString("PERIODO_INVALIDO", resourceCulture);
             }
         }
 
@@ -345,6 +372,15 @@ namespace Exceptions {
         public static string TAMANHO_PAGINA_INVALIDO {
             get {
                 return ResourceManager.GetString("TAMANHO_PAGINA_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Tipo inválido. Use Entrada ou Saida..
+        /// </summary>
+        public static string TIPO_MOVIMENTACAO_INVALIDO {
+            get {
+                return ResourceManager.GetString("TIPO_MOVIMENTACAO_INVALIDO", resourceCulture);
             }
         }
 

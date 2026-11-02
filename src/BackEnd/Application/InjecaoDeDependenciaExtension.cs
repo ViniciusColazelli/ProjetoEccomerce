@@ -1,5 +1,7 @@
 ﻿using Application.Services.MovimentarEstoque;
+using Application.UseCases.EstoqueVariante.Ajustar;
 using Application.UseCases.EstoqueVariante.Entrada;
+using Application.UseCases.EstoqueVariante.Historico;
 using Application.UseCases.EstoqueVariante.Listar;
 using Application.UseCases.EstoqueVariante.Obter;
 using Application.UseCases.EstoqueVariante.Saida;
@@ -62,6 +64,8 @@ namespace Application
             services.AddScoped<IObterEstoqueUseCase, ObterEstoqueUseCase>();
             services.AddScoped<IEntradaEstoqueUseCase, EntradaEstoqueUseCase>();
             services.AddScoped<ISaidaEstoqueUseCase, SaidaEstoqueUseCase>();
+            services.AddScoped<IAjustarEstoqueUseCase, AjustarEstoqueUseCase>();
+            services.AddScoped<IListarMovimentacoesUseCase, ListarMovimentacoesUseCase>();
 
         }
     }

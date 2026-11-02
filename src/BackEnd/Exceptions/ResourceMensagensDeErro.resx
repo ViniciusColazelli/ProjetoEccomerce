@@ -120,6 +120,9 @@
   <data name="ACESSO_NEGADO" xml:space="preserve">
     <value>Você não tem permissão para realizar esta ação.</value>
   </data>
+  <data name="AJUSTE_SEM_DIFERENCA" xml:space="preserve">
+    <value>A quantidade contada é igual ao saldo atual. Não há ajuste a fazer.</value>
+  </data>
   <data name="BUSCA_NOME_MUITO_LONGA" xml:space="preserve">
     <value>A busca por nome deve ter no máximo 200 caracteres.</value>
   </data>
@@ -165,6 +168,9 @@
   <data name="NOME_VAZIO" xml:space="preserve">
     <value>Nome não pode ser vazio</value>
   </data>
+  <data name="NOVA_QUANTIDADE_INVALIDA" xml:space="preserve">
+    <value>A quantidade contada não pode ser negativa.</value>
+  </data>
   <data name="OPCAO_EM_USO" xml:space="preserve">
     <value>Esta opção já está em uso em variantes ou pedidos e não pode ser removida. Desative-a.</value>
   </data>
@@ -179,6 +185,9 @@
   </data>
   <data name="PAGINA_INVALIDA" xml:space="preserve">
     <value>A página deve ser maior ou igual a 1.</value>
+  </data>
+  <data name="PERIODO_INVALIDO" xml:space="preserve">
+    <value>A data inicial deve ser menor ou igual à data final.</value>
   </data>
   <data name="PRECO_ADICIONAL_INVALIDO" xml:space="preserve">
     <value>O preço adicional não pode ser negativo.</value>
@@ -212,6 +221,9 @@
   </data>
   <data name="TAMANHO_PAGINA_INVALIDO" xml:space="preserve">
     <value>O tamanho da página deve estar entre 1 e 50.</value>
+  </data>
+  <data name="TIPO_MOVIMENTACAO_INVALIDO" xml:space="preserve">
+    <value>Tipo inválido. Use Entrada ou Saida.</value>
   </data>
   <data name="TIPO_OPCAO_INVALIDO" xml:space="preserve">
     <value>Tipo inválido. Use Tamanho, Cor ou Personalizacao.</value>

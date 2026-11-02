@@ -51,6 +51,23 @@ namespace Application.Services.Mapeamento
             };
         }
 
+        public static FiltroListagemMovimentacoes RequestParaFiltro(RequestListarMovimentacoes request)
+        {
+            return new FiltroListagemMovimentacoes
+            {
+                VarianteId = request.VarianteId,
+                ProdutoId = request.ProdutoId,
+                PedidoId = request.PedidoId,
+                Tipo = string.IsNullOrWhiteSpace(request.Tipo)
+                    ? null
+                    : Enum.Parse<TipoMovimentacao>(request.Tipo.Trim(), ignoreCase: true),
+                De = request.De,
+                Ate = request.Ate,
+                Pagina = request.Pagina,
+                TamanhoPagina = request.TamanhoPagina
+            };
+        }
+
         public static Produtos RequestParaEntidade(RequestRegistrarProduto request)
         {
             return new Produtos

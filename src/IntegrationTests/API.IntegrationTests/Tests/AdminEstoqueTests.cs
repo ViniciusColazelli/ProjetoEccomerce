@@ -349,6 +349,99 @@ namespace API.IntegrationTests.Tests
         }
 
         // ════════════════════════════════════════════════════════════════
+        // AJUSTE DE INVENTÁRIO
+        // ════════════════════════════════════════════════════════════════
+
+        [Theory]
+        [InlineData(5, 8, TipoMovimentacao.Entrada, 3)]
+        [InlineData(5, 2, TipoMovimentacao.Saida, 3)]
+        [InlineData(4, 0, TipoMovimentacao.Saida, 4)]
+        public async Task Should_GravarDiferenca_When_Ajuste(int saldoAtual, int novaQuantidade, TipoMovimentacao tipoEsperado, int diferencaEsperada)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: saldoAtual);
+            var request = new RequestAjustarEstoque { NovaQuantidade = novaQuantidade, Motivo = "Inventário mensal" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/ajuste", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var body = await response.Content.ReadFromJsonAsync<ResponseEstoqueVariante>(ct);
+            body!.Quantidade.Should().Be(novaQuantidade);
+
+            using var scope = _fixture.CriarScope();
+            var movimentacao = await _fixture.GetDbContext(scope).EstoqueMovimentacoes.SingleAsync(ct);
+            movimentacao.Tipo.Should().Be(tipoEsperado);
+            movimentacao.Quantidade.Should().Be(diferencaEsperada);
+            movimentacao.Motivo.Should().Be("Inventário mensal");
+        }
+
+        [Fact]
+        public async Task Should_CriarLinhaDeEstoque_When_AjusteEmVarianteSemEstoque()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: null);
+            var request = new RequestAjustarEstoque { NovaQuantidade = 6, Motivo = "Contagem inicial" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/ajuste", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+            (await dbContext.Estoque.SingleAsync(ct)).Quantidade.Should().Be(6);
+            (await dbContext.EstoqueMovimentacoes.SingleAsync(ct)).Tipo.Should().Be(TipoMovimentacao.Entrada);
+        }
+
+        [Theory]
+        [InlineData(5, "Inventário", "A quantidade contada é igual ao saldo atual. Não há ajuste a fazer.")]
+        [InlineData(-1, "Inventário", "A quantidade contada não pode ser negativa.")]
+        [InlineData(3, "", "Informe o motivo da movimentação.")]
+        public async Task Should_Return400_When_AjusteInvalido(int novaQuantidade, string motivo, string mensagemEsperada)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: 5);
+            var request = new RequestAjustarEstoque { NovaQuantidade = novaQuantidade, Motivo = motivo };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/ajuste", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            body.GetProperty("errors")[0].GetString().Should().Be(mensagemEsperada);
+
+            using var scope = _fixture.CriarScope();
+            (await _fixture.GetDbContext(scope).EstoqueMovimentacoes.CountAsync(ct)).Should().Be(0);
+        }
+
+        [Fact]
+        public async Task Should_Return404_When_AjusteEmVarianteInexistente()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var request = new RequestAjustarEstoque { NovaQuantidade = 1, Motivo = "Inventário" };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/999999/ajuste", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        // ════════════════════════════════════════════════════════════════
         // HELPERS
         // ════════════════════════════════════════════════════════════════
 
