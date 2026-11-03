@@ -122,6 +122,26 @@ namespace API.IntegrationTests.Tests
         }
 
         [Fact]
+        public async Task Should_RejeitarEmailDuplicado_IgnorandoMaiusculas()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            await _fixture.CadastrarCliente("ana@email.com", "Senha@123");
+
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+
+            // grava direto pelo EF, sem passar pela validação da API
+            dbContext.Clientes.Add(new Clientes { Nome = "Ana", Email = "Ana@Email.com", Senha = "x" });
+
+            // Act
+            var acao = () => dbContext.SaveChangesAsync(ct);
+
+            // Assert
+            await acao.Should().ThrowAsync<DbUpdateException>();
+        }
+
+        [Fact]
         public async Task Should_RejeitarEstoqueNegativo()
         {
             // Arrange

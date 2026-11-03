@@ -28,7 +28,9 @@ namespace Infrastructure.Services.ClienteLogado
                 throw new ClienteNaoLogadoException();
             }
 
-            return await _dbContext.Clientes.AsNoTracking().FirstAsync(cliente => cliente.Id == clienteId);
+            // token ainda válido de um cliente que foi apagado: sessão inválida (401), e não erro 500
+            return await _dbContext.Clientes.AsNoTracking().FirstOrDefaultAsync(cliente => cliente.Id == clienteId)
+                ?? throw new ClienteNaoLogadoException();
         }
     }
 }

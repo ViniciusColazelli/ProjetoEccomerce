@@ -17,7 +17,8 @@ namespace Application.UseCases.Profile
             return new ResponseClienteProfile()
             {
                 Email = user.Email,
-                Nome = user.Nome
+                Nome = user.Nome,
+                Role = user.Perfil
             };
         }
     }

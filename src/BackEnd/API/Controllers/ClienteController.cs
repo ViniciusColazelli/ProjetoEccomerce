@@ -29,6 +29,7 @@ namespace API.Controllers
         [HttpGet]
         [Authorize]
         [ProducesResponseType(typeof(ResponseClienteProfile), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetUserProfile([FromServices] IGetClienteProfileUseCase useCase)
         {
             var result = await useCase.Execute();
@@ -40,6 +41,7 @@ namespace API.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Atualizar([FromServices] IUpdateClienteUseCase useCase, [FromBody] RequestUpdateCliente request)
         {
             await useCase.Execute(request);
@@ -51,6 +53,7 @@ namespace API.Controllers
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> AlterarSenha([FromServices] ITrocarSenhaUseCase useCase, [FromBody] RequestTrocarSenha request)
         {
             await useCase.Execute(request);

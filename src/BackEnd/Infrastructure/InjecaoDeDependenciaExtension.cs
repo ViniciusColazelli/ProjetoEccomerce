@@ -55,6 +55,10 @@ namespace Infrastructure
         {
             services.AddScoped<IClienteRepository, ClienteRepository>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
+            services.AddScoped<IProdutoOpcaoRepository, ProdutoOpcaoRepository>();
+            services.AddScoped<IProdutoVarianteRepository, ProdutoVarianteRepository>();
+            services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+            services.AddScoped<IEstoqueMovimentacaoRepository, EstoqueMovimentacaoRepository>();
             services.AddScoped<ISalvarDBRepository, SalvarDBRepository>();
         }
 

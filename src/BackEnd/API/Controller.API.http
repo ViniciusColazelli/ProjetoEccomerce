@@ -1,6 +1,205 @@
 @Controller.API_HostAddress = http://localhost:5136
 
-GET {{Controller.API_HostAddress}}/weatherforecast/
+# O login grava o token no cookie "access_token" (veja o Set-Cookie na resposta do login).
+# Copie o valor do cookie para @token: as rotas protegidas também aceitam "Authorization: Bearer".
+@token = cole-aqui-o-token-do-cookie-access_token
+
+@produtoId = 1
+@opcaoId = 1
+@varianteId = 1
+
+### ═══════════════════════════ CLIENTE E LOGIN ═══════════════════════════
+
+### Cadastrar cliente (nasce com perfil Cliente)
+POST {{Controller.API_HostAddress}}/api/cliente
+Content-Type: application/json
+
+{
+  "nome": "Maria Silva",
+  "email": "maria@exemplo.com",
+  "senha": "senha123"
+}
+
+### Login (200 + cookie access_token | 401 e-mail ou senha inválidos)
+POST {{Controller.API_HostAddress}}/api/login
+Content-Type: application/json
+
+{
+  "email": "maria@exemplo.com",
+  "senha": "senha123"
+}
+
+### Logout (remove o cookie)
+POST {{Controller.API_HostAddress}}/api/login/logout
+
+### Perfil do cliente logado (401 sem login)
+GET {{Controller.API_HostAddress}}/api/cliente
+Authorization: Bearer {{token}}
+
+### Atualizar nome e e-mail
+PUT {{Controller.API_HostAddress}}/api/cliente
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Maria Souza",
+  "email": "maria@exemplo.com"
+}
+
+### Trocar senha
+PUT {{Controller.API_HostAddress}}/api/cliente/change-password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "senha": "senha123",
+  "novaSenha": "novaSenha456"
+}
+
+### ═══════════════════════════ VITRINE (PÚBLICO) ═══════════════════════════
+
+### Listar produtos ativos (ordenarPor: nome | preco; direcao: asc | desc)
+GET {{Controller.API_HostAddress}}/api/produto?pagina=1&tamanhoPagina=20&nome=jaleco&ordenarPor=preco&direcao=asc&somenteDisponiveis=true
 Accept: application/json
+
+### Detalhe do produto (404 se inativo ou inexistente)
+GET {{Controller.API_HostAddress}}/api/produto/{{produtoId}}
+Accept: application/json
+
+### ═══════════════════ ADMIN: PRODUTOS (401 sem login, 403 Cliente) ═══════════════════
+
+### Listar todos, inclusive inativos (ativo vazio = todos)
+GET {{Controller.API_HostAddress}}/api/admin/produto?pagina=1&tamanhoPagina=20&ativo=&nome=&ordenarPor=nome
+Authorization: Bearer {{token}}
+
+### Detalhe com opções, variantes e quantidade exata
+GET {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}
+Authorization: Bearer {{token}}
+
+### Criar produto (201)
+POST {{Controller.API_HostAddress}}/api/admin/produto
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Jaleco Clássico",
+  "descricao": "Jaleco em gabardine, manga longa",
+  "precoBase": 129.90
+}
+
+### Editar produto (pedidos antigos mantêm o preço da época)
+PUT {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Jaleco Clássico",
+  "descricao": "Jaleco em gabardine, manga longa",
+  "precoBase": 139.90
+}
+
+### Ativar ou desativar produto
+PATCH {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ativo": false
+}
+
+### ═══════════════════════════ ADMIN: OPÇÕES ═══════════════════════════
+
+### Cadastrar opção (tipo: Tamanho | Cor | Personalizacao; duplicada = 400)
+POST {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}/opcao
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tipo": "Tamanho",
+  "valor": "M",
+  "precoAdicional": 0
+}
+
+### Editar opção (o tipo não muda)
+PUT {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}/opcao/{{opcaoId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "valor": "Bordado com nome",
+  "precoAdicional": 15.00
+}
+
+### Remover opção (409 se estiver em uso: desative-a)
+DELETE {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}/opcao/{{opcaoId}}
+Authorization: Bearer {{token}}
+
+### Ativar ou desativar opção
+PATCH {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}/opcao/{{opcaoId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ativo": false
+}
+
+### ═══════════════════════════ ADMIN: VARIANTES ═══════════════════════════
+
+### Gerar variantes tamanho × cor com estoque zerado (só cria as que faltam)
+POST {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}/variante/gerar
+Authorization: Bearer {{token}}
+
+### Ativar ou desativar variante
+PATCH {{Controller.API_HostAddress}}/api/admin/produto/{{produtoId}}/variante/{{varianteId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "ativo": false
+}
+
+### ═══════════════════════════ ADMIN: ESTOQUE ═══════════════════════════
+
+### Estoque por variante (somenteZerados inclui variantes sem linha de estoque)
+GET {{Controller.API_HostAddress}}/api/admin/estoque?pagina=1&tamanhoPagina=20&produtoId={{produtoId}}&somenteZerados=false
+Authorization: Bearer {{token}}
+
+### Estoque de uma variante (404 se não existir)
+GET {{Controller.API_HostAddress}}/api/admin/estoque/{{varianteId}}
+Authorization: Bearer {{token}}
+
+### Entrada (soma ao saldo; motivo obrigatório)
+POST {{Controller.API_HostAddress}}/api/admin/estoque/{{varianteId}}/entrada
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantidade": 10,
+  "motivo": "Reposição"
+}
+
+### Saída por perda (409 se deixar o saldo negativo)
+POST {{Controller.API_HostAddress}}/api/admin/estoque/{{varianteId}}/saida
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "quantidade": 1,
+  "motivo": "Peça danificada"
+}
+
+### Ajuste de inventário (grava a diferença como Entrada ou Saida; igual ao saldo = 400)
+POST {{Controller.API_HostAddress}}/api/admin/estoque/{{varianteId}}/ajuste
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "novaQuantidade": 8,
+  "motivo": "Inventário mensal"
+}
+
+### Histórico de movimentações (tipo: Entrada | Saida; datas em UTC, "ate" inclui o dia inteiro)
+GET {{Controller.API_HostAddress}}/api/admin/estoque/movimentacoes?pagina=1&tamanhoPagina=20&varianteId=&produtoId=&pedidoId=&tipo=&de=2026-01-01&ate=2026-12-31
+Authorization: Bearer {{token}}
 
 ###

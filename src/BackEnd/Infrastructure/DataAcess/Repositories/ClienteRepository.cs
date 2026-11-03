@@ -20,7 +20,10 @@ namespace Infrastructure.DataAcess.Repositories
 
         public async Task<bool> ExisteClienteComEmail(string email) 
         {
-            return await _dbcontext.Clientes.AnyAsync(c => c.Email.Equals(email));
+            // e-mail não diferencia maiúsculas: "Ana@x.com" e "ana@x.com" são a mesma conta
+            var emailNormalizado = email.Trim().ToLower();
+
+            return await _dbcontext.Clientes.AnyAsync(c => c.Email.ToLower() == emailNormalizado);
         }
 
         public async Task<Clientes> GetById(long id)
@@ -30,7 +33,9 @@ namespace Infrastructure.DataAcess.Repositories
 
         public async Task<Clientes?> GetEmailAndPassword(string email, string senha)
         {
-            return await _dbcontext.Clientes.AsNoTracking().FirstOrDefaultAsync(user => user.Email.Equals(email) && user.Senha.Equals(senha));
+            var emailNormalizado = email.Trim().ToLower();
+
+            return await _dbcontext.Clientes.AsNoTracking().FirstOrDefaultAsync(user => user.Email.ToLower() == emailNormalizado && user.Senha.Equals(senha));
         }
 
         public void Update(Clientes clientes)

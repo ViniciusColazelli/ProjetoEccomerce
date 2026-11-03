@@ -11,6 +11,12 @@ namespace Infrastructure.DataAcess.Configurations
             // a chave é a própria variante (não há coluna id), e o valor vem dela, não do banco
             builder.HasKey(estoque => estoque.VarianteId);
             builder.Property(estoque => estoque.VarianteId).ValueGeneratedNever();
+
+            // xmin muda a cada UPDATE no Postgres; se outra requisição alterou o saldo antes, o SaveChanges falha
+            builder.Property<uint>("xmin")
+                .HasColumnType("xid")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
         }
     }
 }

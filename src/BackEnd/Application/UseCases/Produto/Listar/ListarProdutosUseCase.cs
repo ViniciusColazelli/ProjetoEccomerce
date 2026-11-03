@@ -1,5 +1,6 @@
 using Application.Request;
 using Application.Response;
+using Application.Services.Mapeamento;
 using Domain.Extensions;
 using Domain.Repositories;
 using Exceptions.ExceptionBase;
@@ -19,8 +20,10 @@ namespace Application.UseCases.Produto.Listar
         {
             Validate(request);
 
-            var produtos = await _produtoRepository.ListarAtivos(request.Pagina, request.TamanhoPagina);
-            var total = await _produtoRepository.ContarAtivos();
+            var filtro = MapearRequest.RequestParaFiltro(request);
+
+            var produtos = await _produtoRepository.ListarAtivos(filtro);
+            var total = await _produtoRepository.ContarAtivos(filtro);
 
             return new ResponseProdutos
             {
