@@ -28,7 +28,7 @@ namespace Application.UseCases.Update
             var user = await _clienteRepository.GetById(clienteLogado.Id);
 
             user.Nome = request.Nome;
-            user.Email = request.Email;
+            user.Email = request.Email.Trim().ToLowerInvariant();
 
             _clienteRepository.Update(user);
 
@@ -40,7 +40,7 @@ namespace Application.UseCases.Update
 
             var result = validator.Validate(request);
 
-            if (currentEmail.Equals(request.Email).IsFalse()) // esse isFalse é um metodo para indentificar se é falso no caso é o que a gente quer pra entrar no if.
+            if (currentEmail.Equals(request.Email.Trim(), StringComparison.OrdinalIgnoreCase).IsFalse()) // esse isFalse é um metodo para indentificar se é falso no caso é o que a gente quer pra entrar no if.
             {
                 var userExist = await _clienteRepository.ExisteClienteComEmail(request.Email);
                 if (userExist)

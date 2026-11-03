@@ -4,6 +4,7 @@ using Application.Response;
 using Application.UseCases.Login;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.Controllers
 {
@@ -20,8 +21,10 @@ namespace API.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitExtension.PoliticaAutenticacao)]
         [ProducesResponseType(typeof(ResponseClienteRegistrado), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status429TooManyRequests)]
         public async Task<IActionResult> Login([FromServices] ILoginClienteUseCase useCase, [FromBody] RequestLoginCliente request)
         {
             var result = await useCase.Execute(request);

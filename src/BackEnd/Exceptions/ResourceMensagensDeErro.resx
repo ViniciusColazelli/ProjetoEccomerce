@@ -139,7 +139,7 @@
     <value>O e-mail é invalido</value>
   </data>
   <data name="EMAIL_JA_REGISTRADO" xml:space="preserve">
-    <value>E-mail já registrado.</value>
+    <value>Ajuste os dados enviados e tente novamente.</value>
   </data>
   <data name="EMAIL_OU_SENHA_INVALIDO" xml:space="preserve">
     <value>Email e/ou senha invalido</value>
@@ -214,7 +214,7 @@
     <value>Não foi possível alterar a senha. Verifique sua senha atual e tente novamente.</value>
   </data>
   <data name="SENHA_INVALIDA" xml:space="preserve">
-    <value>A senha deve possuir mais de 6 caracteres</value>
+    <value>A senha deve possuir pelo menos 6 caracteres</value>
   </data>
   <data name="SENHA_VAZIO" xml:space="preserve">
     <value>Senha não pode ser vazia</value>

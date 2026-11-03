@@ -12,7 +12,7 @@ namespace Application.Services.Mapeamento
             return new Clientes
             {
                 Nome = request.Nome,
-                Email = request.Email
+                Email = request.Email.Trim().ToLowerInvariant()
             };
         }
 
