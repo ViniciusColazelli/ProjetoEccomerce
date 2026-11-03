@@ -111,18 +111,38 @@ namespace API.IntegrationTests.Tests
             body.Variantes.Select(v => v.VarianteId).Should().BeEquivalentTo(new[] { zerada.Id, semLinhaDeEstoque.Id });
         }
 
-        [Fact]
-        public async Task Should_Return400_When_PaginaInvalida()
+        [Theory]
+        [InlineData("pagina=0", "A página deve ser maior ou igual a 1.")]
+        [InlineData("tamanhoPagina=0", "O tamanho da página deve estar entre 1 e 50.")]
+        [InlineData("tamanhoPagina=51", "O tamanho da página deve estar entre 1 e 50.")]
+        public async Task Should_Return400_When_PaginaInvalida(string query, string mensagemEsperada)
         {
             // Arrange
             var ct = TestContext.Current.CancellationToken;
             using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
 
             // Act
-            var response = await client.GetAsync($"{Endpoint}?pagina=0", ct);
+            var response = await client.GetAsync($"{Endpoint}?{query}", ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            body.GetProperty("errors")[0].GetString().Should().Be(mensagemEsperada);
+        }
+
+        [Fact]
+        public async Task Should_Return200_When_TamanhoPaginaNoLimite()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+
+            // Act
+            var response = await client.GetAsync($"{Endpoint}?tamanhoPagina=50", ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -243,6 +263,40 @@ namespace API.IntegrationTests.Tests
 
             var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
             body.GetProperty("errors")[0].GetString().Should().Be(mensagemEsperada);
+        }
+
+        // O motivo aceita até 200 caracteres nas três operações
+        [Theory]
+        [InlineData("entrada", 200, HttpStatusCode.OK)]
+        [InlineData("entrada", 201, HttpStatusCode.BadRequest)]
+        [InlineData("saida", 201, HttpStatusCode.BadRequest)]
+        [InlineData("ajuste", 201, HttpStatusCode.BadRequest)]
+        public async Task Should_ValidarTamanhoDoMotivo(string operacao, int tamanhoMotivo, HttpStatusCode statusEsperado)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M", quantidade: 5);
+            var motivo = new string('a', tamanhoMotivo);
+
+            object request = operacao == "ajuste"
+                ? new RequestAjustarEstoque { NovaQuantidade = 3, Motivo = motivo }
+                : new RequestMovimentarEstoque { Quantidade = 1, Motivo = motivo };
+
+            // Act
+            var response = await client.PostAsJsonAsync($"{Endpoint}/{variante.Id}/{operacao}", request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(statusEsperado);
+
+            if (statusEsperado == HttpStatusCode.BadRequest)
+            {
+                var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+                body.GetProperty("errors")[0].GetString().Should().Be("O motivo deve ter no máximo 200 caracteres.");
+
+                using var scope = _fixture.CriarScope();
+                (await _fixture.GetDbContext(scope).EstoqueMovimentacoes.CountAsync(ct)).Should().Be(0);
+            }
         }
 
         [Fact]

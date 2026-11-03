@@ -194,6 +194,45 @@ namespace API.IntegrationTests.Tests
             body.GetProperty("errors").EnumerateArray().Select(e => e.GetString()).Should().Contain(mensagemEsperada);
         }
 
+        [Theory]
+        [InlineData(201, 0, "O nome deve ter no máximo 200 caracteres.")]
+        [InlineData(10, 1001, "A descrição deve ter no máximo 1000 caracteres.")]
+        public async Task Should_Return400_When_TextoMuitoLongo(int tamanhoNome, int tamanhoDescricao, string mensagemEsperada)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+
+            var request = NovoRequest(new string('a', tamanhoNome), 10m);
+            request.Descricao = new string('d', tamanhoDescricao);
+
+            // Act
+            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            body.GetProperty("errors").EnumerateArray().Select(e => e.GetString()).Should().Contain(mensagemEsperada);
+        }
+
+        [Fact]
+        public async Task Should_Return201_When_TextosNoLimite()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+
+            var request = NovoRequest(new string('a', 200), 10m);
+            request.Descricao = new string('d', 1000);
+
+            // Act
+            var response = await client.PostAsJsonAsync(ENDPOINT, request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+        }
+
         // ════════════════════════════════════════════════════════════════
         // ATUALIZAR
         // ════════════════════════════════════════════════════════════════

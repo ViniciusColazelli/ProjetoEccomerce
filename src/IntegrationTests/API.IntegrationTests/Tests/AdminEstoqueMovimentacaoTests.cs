@@ -181,6 +181,7 @@ namespace API.IntegrationTests.Tests
         [InlineData("tipo=Ajuste", "Tipo inválido. Use Entrada ou Saida.")]
         [InlineData("de=2026-03-10&ate=2026-03-01", "A data inicial deve ser menor ou igual à data final.")]
         [InlineData("pagina=0", "A página deve ser maior ou igual a 1.")]
+        [InlineData("tamanhoPagina=51", "O tamanho da página deve estar entre 1 e 50.")]
         public async Task Should_Return400_When_FiltroInvalido(string query, string mensagemEsperada)
         {
             // Arrange

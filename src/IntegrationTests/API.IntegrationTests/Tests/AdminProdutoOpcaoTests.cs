@@ -83,6 +83,29 @@ namespace API.IntegrationTests.Tests
             body.GetProperty("errors")[0].GetString().Should().Be(mensagemEsperada);
         }
 
+        [Theory]
+        [InlineData(200, HttpStatusCode.Created)]
+        [InlineData(201, HttpStatusCode.BadRequest)]
+        public async Task Should_ValidarTamanhoDoValor(int tamanhoValor, HttpStatusCode statusEsperado)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var produto = await PrepararProduto(ct);
+
+            // Act
+            var response = await client.PostAsJsonAsync(Endpoint(produto.Id), NovoRequest("Personalizacao", new string('a', tamanhoValor)), ct);
+
+            // Assert
+            response.StatusCode.Should().Be(statusEsperado);
+
+            if (statusEsperado == HttpStatusCode.BadRequest)
+            {
+                var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+                body.GetProperty("errors")[0].GetString().Should().Be("O valor da opção deve ter no máximo 200 caracteres.");
+            }
+        }
+
         [Fact]
         public async Task Should_Return400_When_PrecoAdicionalNegativo()
         {
