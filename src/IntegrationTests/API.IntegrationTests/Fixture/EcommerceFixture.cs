@@ -1,14 +1,17 @@
 ﻿using API.IntegrationTests.Factories;
+using Application.Request;
 using Domain.Entities;
 using Domain.Security.Criptografia;
 using Domain.Security.Tokens;
 using Infrastructure.DataAcess;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Respawn;
 using Respawn.Graph;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Xunit;
@@ -80,6 +83,40 @@ namespace API.IntegrationTests.Fixture
 
         public ISenhaCriptografada GetCriptografia(IServiceScope scope) =>
             scope.ServiceProvider.GetRequiredService<ISenhaCriptografada>();
+
+        // Client que não guarda cookies sozinho: o teste lê o Set-Cookie e decide quando enviar o cookie
+        public HttpClient CriarClientSemCookies() =>
+            _factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = false });
+
+        // Grava um cliente com a senha criptografada de verdade, para os testes que passam pelo login
+        public async Task<Clientes> CadastrarCliente(string email, string senha, string nome = "Cliente Teste")
+        {
+            using var scope = CriarScope();
+            var dbContext = GetDbContext(scope);
+
+            var cliente = new Clientes
+            {
+                Nome = nome,
+                Email = email,
+                Senha = GetCriptografia(scope).Criptografia(senha)
+            };
+
+            dbContext.Clientes.Add(cliente);
+            await dbContext.SaveChangesAsync();
+
+            return cliente;
+        }
+
+        // Faz login de verdade e devolve um client que guarda o cookie, como o navegador
+        public async Task<HttpClient> CriarClientLogado(string email, string senha)
+        {
+            var client = _factory.CreateClient();
+
+            var response = await client.PostAsJsonAsync("/api/login", new RequestLoginCliente { Email = email, Senha = senha });
+            response.EnsureSuccessStatusCode();
+
+            return client;
+        }
 
         // Grava um cliente com o perfil informado e devolve um HttpClient já autenticado com o token dele.
         // Chamar dentro do teste: o banco é limpo antes de cada um.
