@@ -57,18 +57,6 @@ app.UseAuthorization();
 
 app.MapGet("/health", () => Results.Ok("ok")).DisableRateLimiting();
 
-// TEMPORÁRIO: mostra quais cabeçalhos de IP chegam atrás da Vercel e do Cloudflare. Remover depois do diagnóstico.
-app.MapGet("/diagnostico/ip", (HttpContext context) =>
-{
-    string[] cabecalhos = ["X-Forwarded-For", "X-Original-For", "X-Real-IP", "True-Client-IP", "CF-Connecting-IP", "X-Vercel-Forwarded-For", "X-Vercel-Id", "Forwarded", "Via"];
-
-    return Results.Ok(new
-    {
-        remoteIp = context.Connection.RemoteIpAddress?.ToString(),
-        cabecalhos = cabecalhos.ToDictionary(nome => nome, nome => context.Request.Headers[nome].ToString())
-    });
-}).DisableRateLimiting();
-
 app.MapControllers();
 
 app.Services.MigrateDatabase();

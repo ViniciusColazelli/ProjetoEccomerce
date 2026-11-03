@@ -54,7 +54,6 @@ namespace API.Extensions
                 };
             });
         }
-        private static string ObterIp(HttpContext context)
-            => context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido";
+        private static string ObterIp(HttpContext context) => context.ObterIpCliente();
     }
 }
