@@ -6,16 +6,18 @@ using Xunit;
 
 namespace API.IntegrationTests.Tests
 {
-    // Serviço de senha: BCrypt para as senhas novas e o SHA-512 antigo ainda aceito na verificação
+    // Serviço de senha (BCrypt)
     public class SenhaTests : BaseTesteIntegracao
     {
         public SenhaTests(EcommerceFixture fixture) : base(fixture) { }
 
         private const int CUSTO = 4;
-        private const string CHAVE = "chave-de-teste";
         private const string SENHA = "Senha@123";
 
-        private static BCryptSenha CriarServico(int custo = CUSTO) => new(custo, new Sha512Encripter(CHAVE));
+        // formato usado antes do BCrypt (SHA-512 em hexadecimal): não é mais aceito
+        private const string HASH_SHA512_ANTIGO = "3c9909afec25354d551dae21590bb26e38d53f2173b8d3dc3eee4c047e7ab1c1eb8b85103e3be7ba613b31bb5c9c36214dc9f14a42fd7a2fdb84856bca5c44c2";
+
+        private static BCryptSenha CriarServico(int custo = CUSTO) => new(custo);
 
         // ════════════════════════════════════════════════════════════════
         // BCRYPT
@@ -64,45 +66,21 @@ namespace API.IntegrationTests.Tests
         }
 
         // ════════════════════════════════════════════════════════════════
-        // FORMATO ANTIGO (SHA-512 + AdditionalKey)
+        // FORMATO ANTIGO (SHA-512): NÃO É MAIS ACEITO
         // ════════════════════════════════════════════════════════════════
 
+        // Todas as contas foram convertidas: um hash antigo que sobrasse no banco é só "senha errada", sem erro
         [Fact]
-        public void Should_VerificarHashAntigo_When_ContaAindaNaoMigrada()
+        public void Should_RecusarSemErro_When_HashNoFormatoAntigo()
         {
-            // Arrange
-            var servico = CriarServico();
-            var hashAntigo = new Sha512Encripter(CHAVE).Criptografia(SENHA);
-
             // Act / Assert
-            servico.Verificar(SENHA, hashAntigo).Should().BeTrue();
-            servico.Verificar("Senha@124", hashAntigo).Should().BeFalse();
-        }
-
-        // A AdditionalKey continua necessária para as contas antigas: com outra chave, a senha não confere
-        [Fact]
-        public void Should_RecusarHashAntigo_When_AdditionalKeyDiferente()
-        {
-            // Arrange
-            var hashComOutraChave = new Sha512Encripter("outra-chave").Criptografia(SENHA);
-
-            // Act / Assert
-            CriarServico().Verificar(SENHA, hashComOutraChave).Should().BeFalse();
+            CriarServico().Verificar(SENHA, HASH_SHA512_ANTIGO).Should().BeFalse();
+            CriarServico().PrecisaAtualizar(HASH_SHA512_ANTIGO).Should().BeTrue();
         }
 
         // ════════════════════════════════════════════════════════════════
         // QUANDO REGRAVAR
         // ════════════════════════════════════════════════════════════════
-
-        [Fact]
-        public void Should_PedirAtualizacao_When_HashAntigo()
-        {
-            // Arrange
-            var hashAntigo = new Sha512Encripter(CHAVE).Criptografia(SENHA);
-
-            // Act / Assert
-            CriarServico().PrecisaAtualizar(hashAntigo).Should().BeTrue();
-        }
 
         [Fact]
         public void Should_NaoPedirAtualizacao_When_BCryptComOMesmoCusto()
