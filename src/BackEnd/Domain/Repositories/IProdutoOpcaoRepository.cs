@@ -9,6 +9,8 @@ namespace Domain.Repositories
 
         public Task<IList<ProdutoOpcoes>> ListarAtivas(int produtoId);
 
+        public Task<IList<ProdutoOpcoes>> ListarPorIds(IList<int> opcaoIds);
+
         public Task<bool> ExisteOpcao(int produtoId, TipoOpcao tipo, string valor, int? ignorarOpcaoId = null);
 
         public Task<bool> EstaEmUso(int opcaoId);

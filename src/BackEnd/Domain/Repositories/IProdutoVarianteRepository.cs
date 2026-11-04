@@ -17,6 +17,8 @@ namespace Domain.Repositories
 
         public Task<ProdutoVariantes?> ObterComEstoque(int varianteId);
 
+        public Task<IList<ProdutoVariantes>> ListarComEstoquePorIds(IList<int> varianteIds);
+
         public Task Adicionar(IList<ProdutoVariantes> variantes);
 
         public void Update(ProdutoVariantes variante);
