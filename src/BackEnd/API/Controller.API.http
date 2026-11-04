@@ -7,6 +7,7 @@
 @produtoId = 1
 @opcaoId = 1
 @varianteId = 1
+@pedidoId = 1
 
 ### ═══════════════════════════ CLIENTE E LOGIN ═══════════════════════════
 
@@ -199,7 +200,64 @@ Content-Type: application/json
 }
 
 ### Histórico de movimentações (tipo: Entrada | Saida; datas em UTC, "ate" inclui o dia inteiro)
+### pedidoId mostra a baixa feita quando o pedido foi marcado como Pago
 GET {{Controller.API_HostAddress}}/api/admin/estoque/movimentacoes?pagina=1&tamanhoPagina=20&varianteId=&produtoId=&pedidoId=&tipo=&de=2026-01-01&ate=2026-12-31
 Authorization: Bearer {{token}}
+
+### ═══════════════════ PEDIDOS DO CLIENTE (401 sem login) ═══════════════════
+# Cada rota só enxerga os pedidos do cliente logado: pedido de outro cliente = 404.
+# Ciclo: AguardandoPagamento → Pago → EmProducao (opcional) → ProntoParaRetirada → Entregue.
+# Cancelado só enquanto AguardandoPagamento. As datas vêm em UTC (terminam com "Z").
+
+### Criar pedido (201, status AguardandoPagamento; o estoque só é conferido, a baixa é no pagamento)
+### varianteId e personalizacaoIds vêm do detalhe do produto (variantes[].id e personalizacoes[].id).
+### Preços e total são calculados no servidor. 400: peça fora da vitrine ou personalização de outro produto.
+### 409: estoque insuficiente (lista todas as peças que faltam, sem revelar a quantidade).
+POST {{Controller.API_HostAddress}}/api/pedidos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "itens": [
+    { "varianteId": {{varianteId}}, "quantidade": 2, "personalizacaoIds": [{{opcaoId}}] },
+    { "varianteId": {{varianteId}}, "quantidade": 1 }
+  ],
+  "observacao": "Logo no peito esquerdo"
+}
+
+### Meus pedidos, mais recentes primeiro ("total" na raiz = quantidade de pedidos; em cada pedido = valor)
+GET {{Controller.API_HostAddress}}/api/pedidos?pagina=1&tamanhoPagina=10
+Authorization: Bearer {{token}}
+
+### Detalhe de um pedido meu (404 se não existir ou for de outro cliente)
+GET {{Controller.API_HostAddress}}/api/pedidos/{{pedidoId}}
+Authorization: Bearer {{token}}
+
+### Cancelar pedido meu (200; 409 se já não estiver AguardandoPagamento)
+POST {{Controller.API_HostAddress}}/api/pedidos/{{pedidoId}}/cancelar
+Authorization: Bearer {{token}}
+
+### ═══════════════════ ADMIN: PEDIDOS (401 sem login, 403 Cliente) ═══════════════════
+
+### Listar pedidos de todos os clientes, mais recentes primeiro
+### status: AguardandoPagamento | Pago | EmProducao | ProntoParaRetirada | Entregue | Cancelado
+### cliente: parte do nome ou do e-mail; "ate" inclui o dia inteiro (UTC)
+GET {{Controller.API_HostAddress}}/api/admin/pedidos?pagina=1&tamanhoPagina=20&status=AguardandoPagamento&cliente=&de=2026-01-01&ate=2026-12-31
+Authorization: Bearer {{token}}
+
+### Detalhe de qualquer pedido, com os dados do cliente (404 se não existir)
+GET {{Controller.API_HostAddress}}/api/admin/pedidos/{{pedidoId}}
+Authorization: Bearer {{token}}
+
+### Mudar o status (409 se a mudança não for permitida pelo ciclo)
+### Pago: baixa o estoque de cada peça, ligada ao pedido; se faltar alguma peça, 409 e nada muda.
+### Cancelado: só a partir de AguardandoPagamento (pedido pago não pode ser cancelado).
+POST {{Controller.API_HostAddress}}/api/admin/pedidos/{{pedidoId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Pago"
+}
 
 ###
