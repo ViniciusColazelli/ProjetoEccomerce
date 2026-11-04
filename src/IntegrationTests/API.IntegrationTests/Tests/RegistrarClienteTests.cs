@@ -108,12 +108,13 @@ namespace API.IntegrationTests.Tests
             clienteSalvo!.Senha.Should().NotBe(senhaOriginal,
                 because: "a senha deve ser criptografada antes de persistir");
 
-            // Hash salvo é idêntico ao gerado pelo serviço real com a mesma AdditionalKey
-            var criptografia = _fixture.GetCriptografia(scope);
-            var hashEsperado = criptografia.Criptografia(senhaOriginal);
+            // Hash BCrypt (com sal aleatório): não dá para comparar com outro hash, só verificar a senha contra ele
+            clienteSalvo.Senha.Should().StartWith("$2",
+                because: "senhas novas são gravadas em BCrypt");
 
-            clienteSalvo.Senha.Should().Be(hashEsperado,
-                because: "o hash salvo deve ser idêntico ao gerado pelo serviço real");
+            var criptografia = _fixture.GetCriptografia(scope);
+            criptografia.Verificar(senhaOriginal, clienteSalvo.Senha).Should().BeTrue();
+            criptografia.Verificar("Senha@124", clienteSalvo.Senha).Should().BeFalse();
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -211,6 +212,29 @@ namespace API.IntegrationTests.Tests
 
             using var scope = _fixture.CriarScope();
             (await _fixture.GetDbContext(scope).Clientes.CountAsync(ct)).Should().Be(0);
+        }
+
+        // O BCrypt só considera 72 bytes: acima disso o cadastro recusa, em vez de ignorar o final da senha
+        [Theory]
+        [InlineData(72, "a", HttpStatusCode.Created)]
+        [InlineData(73, "a", HttpStatusCode.BadRequest)]
+        [InlineData(37, "ç", HttpStatusCode.BadRequest)]   // 37 caracteres, mas 74 bytes ("ç" ocupa 2)
+        public async Task Should_LimitarSenhaA72Bytes(int repeticoes, string caractere, HttpStatusCode statusEsperado)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            var senha = string.Concat(Enumerable.Repeat(caractere, repeticoes));
+            var request = new RequestRegistrarCliente { Nome = "Beatriz Rocha", Email = "beatriz@email.com", Senha = senha };
+
+            // Act
+            var response = await _fixture.Client.PostAsJsonAsync(ENDPOINT, request, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(statusEsperado);
+
+            if (statusEsperado == HttpStatusCode.BadRequest)
+                (await MensagensDeErro(response, ct)).Should().ContainSingle().Which.Should()
+                    .Be("A senha é longa demais. Use no máximo 72 caracteres (letras acentuadas e emojis contam como mais de um).");
         }
 
         [Fact]

@@ -19,6 +19,9 @@ namespace API.IntegrationTests.Factories
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
                 config.AddJsonFile("appsettings.Testing.json", optional: false, reloadOnChange: false);
 
+                // BCrypt com o custo mínimo: a suíte cadastra muitos clientes e o custo de produção (11) a deixaria lenta
+                config.AddInMemoryCollection(new Dictionary<string, string?> { ["Settings:Password:BCryptFatorCusto"] = "4" });
+
                 // No CI a connection string vem de ConnectionStrings__ConnectionPostgreSql
                 config.AddEnvironmentVariables();
             });
