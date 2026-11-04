@@ -6,6 +6,13 @@ using Application.UseCases.EstoqueVariante.Listar;
 using Application.UseCases.EstoqueVariante.Obter;
 using Application.UseCases.EstoqueVariante.Saida;
 using Application.UseCases.Login;
+using Application.UseCases.Pedido.AlterarStatus;
+using Application.UseCases.Pedido.Cancelar;
+using Application.UseCases.Pedido.Criar;
+using Application.UseCases.Pedido.ListarAdmin;
+using Application.UseCases.Pedido.ListarMeus;
+using Application.UseCases.Pedido.ObterAdmin;
+using Application.UseCases.Pedido.ObterMeu;
 using Application.UseCases.Produto.AlterarStatus;
 using Application.UseCases.Produto.Listar;
 using Application.UseCases.Produto.ListarAdmin;
@@ -66,6 +73,13 @@ namespace Application
             services.AddScoped<ISaidaEstoqueUseCase, SaidaEstoqueUseCase>();
             services.AddScoped<IAjustarEstoqueUseCase, AjustarEstoqueUseCase>();
             services.AddScoped<IListarMovimentacoesUseCase, ListarMovimentacoesUseCase>();
+            services.AddScoped<ICriarPedidoUseCase, CriarPedidoUseCase>();
+            services.AddScoped<IListarMeusPedidosUseCase, ListarMeusPedidosUseCase>();
+            services.AddScoped<IObterMeuPedidoUseCase, ObterMeuPedidoUseCase>();
+            services.AddScoped<ICancelarMeuPedidoUseCase, CancelarMeuPedidoUseCase>();
+            services.AddScoped<IListarPedidosAdminUseCase, ListarPedidosAdminUseCase>();
+            services.AddScoped<IObterPedidoAdminUseCase, ObterPedidoAdminUseCase>();
+            services.AddScoped<IAlterarStatusPedidoUseCase, AlterarStatusPedidoUseCase>();
 
         }
     }

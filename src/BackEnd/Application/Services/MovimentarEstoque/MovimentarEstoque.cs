@@ -21,17 +21,17 @@ namespace Application.Services.MovimentarEstoque
             _varianteRepository = varianteRepository;
         }
 
-        public async Task<Estoque> Entrada(int varianteId, int quantidade, string motivo)
+        public async Task<Estoque> Entrada(int varianteId, int quantidade, string motivo, int? pedidoId = null)
         {
-            return await Movimentar(varianteId, TipoMovimentacao.Entrada, quantidade, motivo);
+            return await Movimentar(varianteId, TipoMovimentacao.Entrada, quantidade, motivo, pedidoId);
         }
 
-        public async Task<Estoque> Saida(int varianteId, int quantidade, string motivo)
+        public async Task<Estoque> Saida(int varianteId, int quantidade, string motivo, int? pedidoId = null)
         {
-            return await Movimentar(varianteId, TipoMovimentacao.Saida, quantidade, motivo);
+            return await Movimentar(varianteId, TipoMovimentacao.Saida, quantidade, motivo, pedidoId);
         }
 
-        private async Task<Estoque> Movimentar(int varianteId, TipoMovimentacao tipo, int quantidade, string motivo)
+        private async Task<Estoque> Movimentar(int varianteId, TipoMovimentacao tipo, int quantidade, string motivo, int? pedidoId)
         {
             var estoque = await _estoqueRepository.GetByVarianteId(varianteId);
             var estoqueNovo = estoque is null;
@@ -69,7 +69,8 @@ namespace Application.Services.MovimentarEstoque
                 VarianteId = varianteId,
                 Tipo = tipo,
                 Quantidade = quantidade,
-                Motivo = motivo
+                Motivo = motivo,
+                PedidoId = pedidoId
             });
 
             return estoque;
