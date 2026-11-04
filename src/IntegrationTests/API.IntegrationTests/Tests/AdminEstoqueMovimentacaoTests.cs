@@ -82,6 +82,23 @@ namespace API.IntegrationTests.Tests
             maisRecente.Quantidade.Should().Be(2);
         }
 
+        // As datas são gravadas em UTC: a resposta precisa do "Z", senão o navegador lê como horário local
+        [Fact]
+        public async Task Should_DevolverDataComFusoUtc()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var variante = await PrepararVariante(ct, "Jaleco", "M");
+            await PrepararMovimentacao(ct, variante.Id, TipoMovimentacao.Entrada, 10, new DateTime(2026, 3, 1, 9, 0, 0, DateTimeKind.Utc));
+
+            // Act
+            var body = await client.GetFromJsonAsync<JsonElement>(Endpoint, ct);
+
+            // Assert
+            body.GetProperty("movimentacoes")[0].GetProperty("criadoEm").GetString().Should().Be("2026-03-01T09:00:00Z");
+        }
+
         [Fact]
         public async Task Should_FiltrarPorVariante()
         {
