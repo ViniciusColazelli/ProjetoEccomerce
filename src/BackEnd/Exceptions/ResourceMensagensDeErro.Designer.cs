@@ -358,6 +358,15 @@ namespace Exceptions {
         }
         
         /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A senha é longa demais. Use no máximo 72 caracteres (letras acentuadas e emojis contam como mais de um)..
+        /// </summary>
+        public static string SENHA_MUITO_LONGA {
+            get {
+                return ResourceManager.GetString("SENHA_MUITO_LONGA", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a Senha não pode ser vazia.
         /// </summary>
         public static string SENHA_VAZIO {
