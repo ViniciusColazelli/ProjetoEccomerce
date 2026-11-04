@@ -51,6 +51,21 @@ namespace Application.Services.Mapeamento
             };
         }
 
+        public static FiltroListagemPedidos RequestParaFiltro(RequestListarPedidosAdmin request)
+        {
+            return new FiltroListagemPedidos
+            {
+                Status = string.IsNullOrWhiteSpace(request.Status)
+                    ? null
+                    : Enum.Parse<StatusPedido>(request.Status.Trim(), ignoreCase: true),
+                BuscaCliente = request.Cliente,
+                De = request.De,
+                Ate = request.Ate,
+                Pagina = request.Pagina,
+                TamanhoPagina = request.TamanhoPagina
+            };
+        }
+
         public static FiltroListagemMovimentacoes RequestParaFiltro(RequestListarMovimentacoes request)
         {
             return new FiltroListagemMovimentacoes

@@ -237,4 +237,49 @@
   <data name="VARIANTE_NAO_ENCONTRADA" xml:space="preserve">
     <value>Variante não encontrada.</value>
   </data>
+  <data name="ESTOQUE_INSUFICIENTE_PECA" xml:space="preserve">
+    <value>Não há estoque suficiente de {0}.</value>
+  </data>
+  <data name="OBSERVACAO_MUITO_LONGA" xml:space="preserve">
+    <value>A observação deve ter no máximo 500 caracteres.</value>
+  </data>
+  <data name="PECA_INDISPONIVEL" xml:space="preserve">
+    <value>A peça {0} não está mais disponível.</value>
+  </data>
+  <data name="PECA_NAO_ENCONTRADA" xml:space="preserve">
+    <value>Uma das peças escolhidas não foi encontrada.</value>
+  </data>
+  <data name="PEDIDO_MUITOS_ITENS" xml:space="preserve">
+    <value>O pedido pode ter no máximo 50 itens.</value>
+  </data>
+  <data name="PEDIDO_SEM_ITENS" xml:space="preserve">
+    <value>O pedido precisa ter ao menos um item.</value>
+  </data>
+  <data name="PEDIDO_VALOR_MUITO_ALTO" xml:space="preserve">
+    <value>O valor total do pedido passou do limite permitido. Divida em pedidos menores.</value>
+  </data>
+  <data name="PERSONALIZACAO_INVALIDA" xml:space="preserve">
+    <value>A personalização escolhida não está disponível para {0}.</value>
+  </data>
+  <data name="PERSONALIZACAO_REPETIDA" xml:space="preserve">
+    <value>A mesma personalização foi escolhida mais de uma vez no item.</value>
+  </data>
+  <data name="PEDIDO_NAO_ENCONTRADO" xml:space="preserve">
+    <value>Pedido não encontrado.</value>
+  </data>
+  <data name="PEDIDO_NAO_PODE_SER_CANCELADO" xml:space="preserve">
+    <value>Só é possível cancelar pedidos que ainda aguardam pagamento. Fale com a loja pelo WhatsApp.</value>
+  </data>
+  <data name="STATUS_PEDIDO_INVALIDO" xml:space="preserve">
+    <value>Status inválido. Use AguardandoPagamento, Pago, EmProducao, ProntoParaRetirada, Entregue ou Cancelado.</value>
+  </data>
+  <data name="BUSCA_CLIENTE_MUITO_LONGA" xml:space="preserve">
+    <value>A busca por cliente deve ter no máximo 200 caracteres.</value>
+  </data>
+  <data name="TRANSICAO_STATUS_INVALIDA" xml:space="preserve">
+    <value>Não é possível mudar o pedido de {0} para {1}.</value>
+  </data>
+  <data name="QUANTIDADE_ITEM_INVALIDA" xml:space="preserve">
+    <value>A quantidade de cada item deve estar entre 1 e 999.</value>
+  </data>
 </root>

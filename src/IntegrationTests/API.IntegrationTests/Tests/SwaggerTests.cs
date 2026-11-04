@@ -1,0 +1,59 @@
+using API.IntegrationTests.Fixture;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Swagger;
+using Xunit;
+
+namespace API.IntegrationTests.Tests
+{
+    // O Swagger só é servido em Development, mas o documento é gerado pelo mesmo serviço:
+    // gerar aqui pega rota sem documentação e schema que o Swashbuckle não consegue montar
+    public class SwaggerTests : BaseTesteIntegracao
+    {
+        public SwaggerTests(EcommerceFixture fixture) : base(fixture) { }
+
+        [Theory]
+        [InlineData("/api/pedidos", OperationType.Get, "200,400,401")]
+        [InlineData("/api/pedidos", OperationType.Post, "201,400,401,409")]
+        [InlineData("/api/pedidos/{id}", OperationType.Get, "200,401,404")]
+        [InlineData("/api/pedidos/{id}/cancelar", OperationType.Post, "200,401,404,409")]
+        [InlineData("/api/admin/pedidos", OperationType.Get, "200,400,401,403")]
+        [InlineData("/api/admin/pedidos/{id}", OperationType.Get, "200,401,403,404")]
+        [InlineData("/api/admin/pedidos/{id}/status", OperationType.Post, "200,400,401,403,404,409")]
+        public void Should_DocumentarRotasDePedido(string rota, OperationType metodo, string respostas)
+        {
+            // Arrange
+            using var scope = _fixture.CriarScope();
+            var swagger = scope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
+
+            // Act
+            var documento = swagger.GetSwagger("v1");
+
+            // Assert
+            documento.Paths.Should().ContainKey(rota);
+            var operacao = documento.Paths[rota].Operations.Should().ContainKey(metodo).WhoseValue;
+            operacao.Responses.Keys.Should().BeEquivalentTo(respostas.Split(','));
+        }
+
+        [Theory]
+        [InlineData("ResponsePedido")]
+        [InlineData("ResponsePedidoAdmin")]
+        [InlineData("ResponsePedidos")]
+        [InlineData("ResponsePedidosAdmin")]
+        [InlineData("RequestCriarPedido")]
+        [InlineData("RequestAlterarStatusPedido")]
+        public void Should_GerarSchemasDosPedidos(string schema)
+        {
+            // Arrange
+            using var scope = _fixture.CriarScope();
+            var swagger = scope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
+
+            // Act
+            var documento = swagger.GetSwagger("v1");
+
+            // Assert
+            documento.Components.Schemas.Should().ContainKey(schema);
+        }
+    }
+}

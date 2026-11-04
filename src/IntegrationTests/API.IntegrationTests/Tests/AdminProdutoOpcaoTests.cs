@@ -254,6 +254,45 @@ namespace API.IntegrationTests.Tests
         }
 
         [Fact]
+        public async Task Should_Return409_When_OpcaoUsadaEmPedido()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var bordado = Opcao(TipoOpcao.Personalizacao, "Bordado", precoAdicional: 15m);
+            var produto = await PrepararProduto(ct, bordado);
+
+            using (var scope = _fixture.CriarScope())
+            {
+                var dbContext = _fixture.GetDbContext(scope);
+                var clienteId = await dbContext.Clientes.Select(c => c.Id).FirstAsync(ct);
+
+                dbContext.Pedidos.Add(new Pedidos
+                {
+                    ClienteId = clienteId,
+                    Total = 74.90m,
+                    Itens =
+                    {
+                        new PedidoItens
+                        {
+                            ProdutoId = produto.Id,
+                            Quantidade = 1,
+                            PrecoUnitario = 74.90m,
+                            Customizacoes = { new PedidoItemCustomizacoes { OpcaoId = bordado.Id, Tipo = TipoOpcao.Personalizacao, Valor = "Bordado", PrecoAdicional = 15m } }
+                        }
+                    }
+                });
+                await dbContext.SaveChangesAsync(ct);
+            }
+
+            // Act
+            var response = await client.DeleteAsync($"{Endpoint(produto.Id)}/{bordado.Id}", ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        }
+
+        [Fact]
         public async Task Should_Return409_When_OpcaoUsadaEmVariante()
         {
             // Arrange

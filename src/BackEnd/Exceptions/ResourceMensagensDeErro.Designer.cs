@@ -419,5 +419,140 @@ namespace Exceptions {
                 return ResourceManager.GetString("VARIANTE_NAO_ENCONTRADA", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Não há estoque suficiente de {0}..
+        /// </summary>
+        public static string ESTOQUE_INSUFICIENTE_PECA {
+            get {
+                return ResourceManager.GetString("ESTOQUE_INSUFICIENTE_PECA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A observação deve ter no máximo 500 caracteres..
+        /// </summary>
+        public static string OBSERVACAO_MUITO_LONGA {
+            get {
+                return ResourceManager.GetString("OBSERVACAO_MUITO_LONGA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A peça {0} não está mais disponível..
+        /// </summary>
+        public static string PECA_INDISPONIVEL {
+            get {
+                return ResourceManager.GetString("PECA_INDISPONIVEL", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Uma das peças escolhidas não foi encontrada..
+        /// </summary>
+        public static string PECA_NAO_ENCONTRADA {
+            get {
+                return ResourceManager.GetString("PECA_NAO_ENCONTRADA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O pedido pode ter no máximo 50 itens..
+        /// </summary>
+        public static string PEDIDO_MUITOS_ITENS {
+            get {
+                return ResourceManager.GetString("PEDIDO_MUITOS_ITENS", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O pedido precisa ter ao menos um item..
+        /// </summary>
+        public static string PEDIDO_SEM_ITENS {
+            get {
+                return ResourceManager.GetString("PEDIDO_SEM_ITENS", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O valor total do pedido passou do limite permitido. Divida em pedidos menores..
+        /// </summary>
+        public static string PEDIDO_VALOR_MUITO_ALTO {
+            get {
+                return ResourceManager.GetString("PEDIDO_VALOR_MUITO_ALTO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A personalização escolhida não está disponível para {0}..
+        /// </summary>
+        public static string PERSONALIZACAO_INVALIDA {
+            get {
+                return ResourceManager.GetString("PERSONALIZACAO_INVALIDA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A mesma personalização foi escolhida mais de uma vez no item..
+        /// </summary>
+        public static string PERSONALIZACAO_REPETIDA {
+            get {
+                return ResourceManager.GetString("PERSONALIZACAO_REPETIDA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Pedido não encontrado..
+        /// </summary>
+        public static string PEDIDO_NAO_ENCONTRADO {
+            get {
+                return ResourceManager.GetString("PEDIDO_NAO_ENCONTRADO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Só é possível cancelar pedidos que ainda aguardam pagamento. Fale com a loja pelo WhatsApp..
+        /// </summary>
+        public static string PEDIDO_NAO_PODE_SER_CANCELADO {
+            get {
+                return ResourceManager.GetString("PEDIDO_NAO_PODE_SER_CANCELADO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Status inválido. Use AguardandoPagamento, Pago, EmProducao, ProntoParaRetirada, Entregue ou Cancelado..
+        /// </summary>
+        public static string STATUS_PEDIDO_INVALIDO {
+            get {
+                return ResourceManager.GetString("STATUS_PEDIDO_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A busca por cliente deve ter no máximo 200 caracteres..
+        /// </summary>
+        public static string BUSCA_CLIENTE_MUITO_LONGA {
+            get {
+                return ResourceManager.GetString("BUSCA_CLIENTE_MUITO_LONGA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Não é possível mudar o pedido de {0} para {1}..
+        /// </summary>
+        public static string TRANSICAO_STATUS_INVALIDA {
+            get {
+                return ResourceManager.GetString("TRANSICAO_STATUS_INVALIDA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A quantidade de cada item deve estar entre 1 e 999..
+        /// </summary>
+        public static string QUANTIDADE_ITEM_INVALIDA {
+            get {
+                return ResourceManager.GetString("QUANTIDADE_ITEM_INVALIDA", resourceCulture);
+            }
+        }
     }
 }

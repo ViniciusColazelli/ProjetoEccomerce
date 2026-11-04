@@ -46,10 +46,10 @@ namespace API.Filtros
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
                 context.Result = new NotFoundObjectResult(new ResponseErro(context.Exception.Message));
             }
-            else if (context.Exception is ConflitoException)
+            else if (context.Exception is ConflitoException conflito)
             {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                context.Result = new ConflictObjectResult(new ResponseErro(context.Exception.Message));
+                context.Result = new ConflictObjectResult(new ResponseErro(conflito.ErrorMessages));
             }
         }
 

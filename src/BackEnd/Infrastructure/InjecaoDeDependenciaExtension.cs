@@ -59,6 +59,7 @@ namespace Infrastructure
             services.AddScoped<IProdutoVarianteRepository, ProdutoVarianteRepository>();
             services.AddScoped<IEstoqueRepository, EstoqueRepository>();
             services.AddScoped<IEstoqueMovimentacaoRepository, EstoqueMovimentacaoRepository>();
+            services.AddScoped<IPedidoRepository, PedidoRepository>();
             services.AddScoped<ISalvarDBRepository, SalvarDBRepository>();
         }
 

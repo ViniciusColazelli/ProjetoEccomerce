@@ -78,6 +78,13 @@ namespace Infrastructure.DataAcess.Repositories
             return consulta;
         }
 
+        public async Task<IList<ProdutoVariantes>> ListarComEstoquePorIds(IList<int> varianteIds)
+        {
+            return await IncluirDetalhes(_dbcontext.ProdutoVariantes.AsNoTracking())
+                .Where(variante => varianteIds.Contains(variante.Id))
+                .ToListAsync();
+        }
+
         private static IQueryable<ProdutoVariantes> IncluirDetalhes(IQueryable<ProdutoVariantes> consulta)
         {
             return consulta
