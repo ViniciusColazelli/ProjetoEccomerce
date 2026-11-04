@@ -6,6 +6,9 @@
 
 .env.development
 appsettings.Development.json
+
+# Requisições com senhas e tokens reais (ex.: teste-pedidos-producao.local.http)
+*.local.http
 appsettings.*.json        
 !appsettings.json   
 
