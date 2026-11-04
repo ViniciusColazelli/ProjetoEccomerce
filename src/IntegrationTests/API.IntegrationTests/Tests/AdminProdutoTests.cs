@@ -273,17 +273,19 @@ namespace API.IntegrationTests.Tests
             var produto = NovoProduto("Jaleco", 89.90m);
             await PrepararProdutos(ct, produto);
 
-            // pedidos ainda não têm entidade no EF: o pedido antigo é gravado direto no banco
             using (var scope = _fixture.CriarScope())
             {
                 var dbContext = _fixture.GetDbContext(scope);
                 var clienteId = await dbContext.Clientes.Select(c => c.Id).FirstAsync(ct);
 
-                await dbContext.Database.ExecuteSqlInterpolatedAsync($@"
-                    WITH pedido AS (
-                        INSERT INTO pedidos (cliente_id, status, total) VALUES ({clienteId}, 'Pago', 89.90) RETURNING id)
-                    INSERT INTO pedido_itens (pedido_id, produto_id, quantidade, preco_unitario)
-                    SELECT id, {produto.Id}, 1, 89.90 FROM pedido", ct);
+                dbContext.Pedidos.Add(new Pedidos
+                {
+                    ClienteId = clienteId,
+                    Status = StatusPedido.Pago,
+                    Total = 89.90m,
+                    Itens = { new PedidoItens { ProdutoId = produto.Id, Quantidade = 1, PrecoUnitario = 89.90m } }
+                });
+                await dbContext.SaveChangesAsync(ct);
             }
 
             var request = new RequestUpdateProduto { Nome = "Jaleco", PrecoBase = 119.90m };
@@ -293,8 +295,8 @@ namespace API.IntegrationTests.Tests
 
             // Assert
             using var scopeLeitura = _fixture.CriarScope();
-            var precoNoPedido = await _fixture.GetDbContext(scopeLeitura).Database
-                .SqlQuery<decimal>($"SELECT preco_unitario AS \"Value\" FROM pedido_itens")
+            var precoNoPedido = await _fixture.GetDbContext(scopeLeitura).PedidoItens
+                .Select(item => item.PrecoUnitario)
                 .SingleAsync(ct);
 
             precoNoPedido.Should().Be(89.90m);

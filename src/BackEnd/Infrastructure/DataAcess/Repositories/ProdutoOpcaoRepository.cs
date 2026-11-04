@@ -39,6 +39,17 @@ namespace Infrastructure.DataAcess.Repositories
                 opcao.Id != ignorarOpcaoId);
         }
 
+        public async Task<IList<ProdutoOpcoes>> ListarPorIds(IList<int> opcaoIds)
+        {
+            if (opcaoIds.Count == 0)
+                return new List<ProdutoOpcoes>();
+
+            return await _dbcontext.ProdutoOpcoes
+                .AsNoTracking()
+                .Where(opcao => opcaoIds.Contains(opcao.Id))
+                .ToListAsync();
+        }
+
         public async Task<bool> EstaEmUso(int opcaoId)
         {
             var usadaEmVariante = await _dbcontext.ProdutoVariantes
@@ -47,10 +58,7 @@ namespace Infrastructure.DataAcess.Repositories
             if (usadaEmVariante)
                 return true;
 
-            // pedido_item_customizacoes ainda não tem entidade no EF
-            return await _dbcontext.Database
-                .SqlQuery<bool>($"SELECT EXISTS (SELECT 1 FROM pedido_item_customizacoes WHERE opcao_id = {opcaoId}) AS \"Value\"")
-                .SingleAsync();
+            return await _dbcontext.PedidoItemCustomizacoes.AnyAsync(customizacao => customizacao.OpcaoId == opcaoId);
         }
 
         public async Task Adicionar(ProdutoOpcoes opcao)
