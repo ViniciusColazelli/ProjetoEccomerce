@@ -1,10 +1,12 @@
-﻿using Domain.Security.Criptografia;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace Infrastructure.Security.Criptografia
 {
-    public class Sha512Encripter : ISenhaCriptografada
+    // Formato antigo das senhas: SHA-512 de "<senha> <AdditionalKey>", em hexadecimal.
+    // Só serve para verificar contas que ainda não entraram desde a troca para BCrypt (BCryptSenha regrava no login).
+    // Etapa 2 da migração: quando nenhuma conta tiver mais esse formato, excluir esta classe e a AdditionalKey.
+    public class Sha512Encripter
     {
         private readonly string _additionalKey;
         public Sha512Encripter(string additionalKey)

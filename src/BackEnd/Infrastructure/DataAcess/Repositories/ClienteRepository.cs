@@ -31,11 +31,12 @@ namespace Infrastructure.DataAcess.Repositories
             return await _dbcontext.Clientes.FirstAsync(user => user.Id == id);
         }
 
-        public async Task<Clientes?> GetEmailAndPassword(string email, string senha)
+        public async Task<Clientes?> GetByEmail(string email)
         {
-            var emailNormalizado = email.Trim().ToLower();
+            // "email": null no JSON do login chega aqui como nulo
+            var emailNormalizado = (email ?? string.Empty).Trim().ToLower();
 
-            return await _dbcontext.Clientes.AsNoTracking().FirstOrDefaultAsync(user => user.Email.ToLower() == emailNormalizado && user.Senha.Equals(senha));
+            return await _dbcontext.Clientes.FirstOrDefaultAsync(user => user.Email.ToLower() == emailNormalizado);
         }
 
         public void Update(Clientes clientes)

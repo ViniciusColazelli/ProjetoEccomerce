@@ -8,7 +8,8 @@ namespace Domain.Repositories
 
         public Task<bool> ExisteClienteComEmail(string email);
 
-        public Task<Clientes?> GetEmailAndPassword(string email, string senha);
+        // rastreado: o login regrava o hash quando a senha ainda está no formato antigo
+        public Task<Clientes?> GetByEmail(string email);
 
         public Task<Clientes> GetById(long id);
 

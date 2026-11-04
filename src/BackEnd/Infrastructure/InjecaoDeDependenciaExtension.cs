@@ -24,7 +24,7 @@ namespace Infrastructure
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            SenhaCriptografada(services, configuration);
+            SenhaCriptografada(services);
             AddTokenJwt(services);
             AddAuthenticationJwt(services, configuration);
             AddDbContext_PostgreSql(services, configuration);
@@ -68,11 +68,20 @@ namespace Infrastructure
             services.AddScoped<IClienteLogado, ClienteLogado>();
         }
 
-        private static void SenhaCriptografada(IServiceCollection services, IConfiguration configuration)
+        private static void SenhaCriptografada(IServiceCollection services)
         {
-            var additionalKey = configuration.GetValue<string>("Settings:Password:AdditionalKey");
+            // singleton: o hash fictício do BCrypt é calculado uma vez só.
+            // A configuração é lida na criação do serviço (e não aqui) para valer a que os testes injetam no WebApplicationFactory.
+            services.AddSingleton<ISenhaCriptografada>(provider =>
+            {
+                var config = provider.GetRequiredService<IConfiguration>();
 
-            services.AddScoped<ISenhaCriptografada>(options => new Sha512Encripter(additionalKey!));
+                // a AdditionalKey só verifica as senhas antigas (SHA-512); as novas são BCrypt
+                var additionalKey = config.GetValue<string>("Settings:Password:AdditionalKey");
+                var fatorCusto = config.GetValue("Settings:Password:BCryptFatorCusto", BCryptSenha.FATOR_CUSTO_PADRAO);
+
+                return new BCryptSenha(fatorCusto, new Sha512Encripter(additionalKey!));
+            });
         }
 
         private static void AddTokenJwt(IServiceCollection services)

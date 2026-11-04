@@ -32,7 +32,7 @@ namespace Application.UseCases.TrocarSenha
 
             var user = await _repository.GetById(clienteLogado.Id);
 
-            user.Senha = _senhaCriptografada.Criptografia(request.NovaSenha);
+            user.Senha = _senhaCriptografada.Gerar(request.NovaSenha);
 
             _repository.Update(user);
 
@@ -43,9 +43,8 @@ namespace Application.UseCases.TrocarSenha
         {
             var result = new TrocarSenhaValidator().Validate(request);
 
-            var currentPasswordEncripted = _senhaCriptografada.Criptografia(request.Senha);
-
-            if (currentPasswordEncripted.Equals(clienteLogado.Senha).IsFalse())
+            // aceita a senha atual em BCrypt ou no formato antigo; a nova é sempre gravada em BCrypt
+            if (_senhaCriptografada.Verificar(request.Senha, clienteLogado.Senha).IsFalse())
                 result.Errors.Add(new FluentValidation.Results.ValidationFailure(string.Empty, ResourceMensagensDeErro.SENHA_ATUAL_NAO_REGISTRADA));
 
             if (result.IsValid.IsFalse())

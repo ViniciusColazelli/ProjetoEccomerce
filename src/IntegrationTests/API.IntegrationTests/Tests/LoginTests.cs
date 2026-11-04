@@ -105,6 +105,92 @@ namespace API.IntegrationTests.Tests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
+        // ════════════════════════════════════════════════════════════════
+        // CONVERSÃO DAS SENHAS ANTIGAS (SHA-512 → BCrypt)
+        // ════════════════════════════════════════════════════════════════
+
+        // Cliente cadastrado antes da troca para BCrypt: entra com a mesma senha e sai com o hash convertido
+        [Fact]
+        public async Task Should_ConverterSenhaAntigaParaBCrypt_When_LoginComSenhaCerta()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            var cliente = await _fixture.CadastrarClienteComSenhaAntiga(EMAIL, SENHA);
+            using var client = _fixture.CriarClientSemCookies();
+
+            var hashAntigo = await _fixture.SenhaGravada(cliente.Id);
+            hashAntigo.Should().NotStartWith("$2", because: "o cenário começa com o formato SHA-512");
+
+            // Act
+            var primeiro = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = SENHA }, ct);
+            var hashDepois = await _fixture.SenhaGravada(cliente.Id);
+            var segundo = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = SENHA }, ct);
+
+            // Assert
+            primeiro.StatusCode.Should().Be(HttpStatusCode.OK);
+            segundo.StatusCode.Should().Be(HttpStatusCode.OK, because: "depois de convertida, a mesma senha continua entrando");
+            hashDepois.Should().StartWith("$2");
+
+            using var scope = _fixture.CriarScope();
+            _fixture.GetCriptografia(scope).Verificar(SENHA, hashDepois).Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Should_ManterSenhaAntiga_When_LoginComSenhaErrada()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            var cliente = await _fixture.CadastrarClienteComSenhaAntiga(EMAIL, SENHA);
+            var hashAntigo = await _fixture.SenhaGravada(cliente.Id);
+            using var client = _fixture.CriarClientSemCookies();
+
+            // Act
+            var response = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = "SenhaErrada" }, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            (await _fixture.SenhaGravada(cliente.Id)).Should().Be(hashAntigo);
+        }
+
+        // Sem conversão pendente, o login não regrava o hash a cada entrada
+        [Fact]
+        public async Task Should_NaoRegravarHash_When_SenhaJaEmBCrypt()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            var cliente = await _fixture.CadastrarCliente(EMAIL, SENHA);
+            var hashAntes = await _fixture.SenhaGravada(cliente.Id);
+            using var client = _fixture.CriarClientSemCookies();
+
+            // Act
+            var response = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = SENHA }, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            (await _fixture.SenhaGravada(cliente.Id)).Should().Be(hashAntes);
+        }
+
+        // Campos faltando ou nulos no JSON nunca viram erro 500.
+        // null explícito: o ASP.NET barra antes (campos string não anuláveis = obrigatórios) com 400;
+        // campos ausentes ficam vazios e chegam ao login, que responde 401
+        [Theory]
+        [InlineData("{ \"email\": \"maria@email.com\", \"senha\": null }", HttpStatusCode.BadRequest)]
+        [InlineData("{ \"email\": null, \"senha\": \"Senha@123\" }", HttpStatusCode.BadRequest)]
+        [InlineData("{ }", HttpStatusCode.Unauthorized)]
+        public async Task Should_NaoDarErro500_When_CamposNulosOuAusentes(string json, HttpStatusCode statusEsperado)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            await _fixture.CadastrarCliente(EMAIL, SENHA);
+            using var client = _fixture.CriarClientSemCookies();
+
+            // Act
+            var response = await client.PostAsync(ENDPOINT, new StringContent(json, System.Text.Encoding.UTF8, "application/json"), ct);
+
+            // Assert
+            response.StatusCode.Should().Be(statusEsperado);
+        }
+
         // O rate limiter fica desligado no ambiente Testing (todas as requisições vêm do mesmo IP),
         // então o teste confere que a política estrita está ligada nas rotas de autenticação
         [Theory]

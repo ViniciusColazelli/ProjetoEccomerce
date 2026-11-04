@@ -207,6 +207,31 @@ namespace API.IntegrationTests.Tests
             loginAntiga.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
+        // Conta ainda com senha antiga (SHA-512) troca a senha: a atual é aceita e a nova vai em BCrypt
+        [Fact]
+        public async Task Should_TrocarSenha_When_ContaComSenhaAntiga()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            var cliente = await _fixture.CadastrarClienteComSenhaAntiga(EMAIL, SENHA);
+
+            // autenticado pelo token (não pelo login), para a senha antiga chegar intacta na troca
+            using var client = _fixture.CriarClientComToken(cliente);
+
+            // Act
+            var response = await client.PutAsJsonAsync(ENDPOINT_SENHA, new RequestTrocarSenha { Senha = SENHA, NovaSenha = "NovaSenha@456" }, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            var hash = await _fixture.SenhaGravada(cliente.Id);
+            hash.Should().StartWith("$2");
+
+            using var anonimo = _fixture.CriarClientSemCookies();
+            var login = await anonimo.PostAsJsonAsync(ENDPOINT_LOGIN, new RequestLoginCliente { Email = EMAIL, Senha = "NovaSenha@456" }, ct);
+            login.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
         [Fact]
         public async Task Should_Return400EManterSenha_When_SenhaAtualErrada()
         {

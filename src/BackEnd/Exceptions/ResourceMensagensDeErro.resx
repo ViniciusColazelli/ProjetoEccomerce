@@ -216,6 +216,9 @@
   <data name="SENHA_INVALIDA" xml:space="preserve">
     <value>A senha deve possuir pelo menos 6 caracteres</value>
   </data>
+  <data name="SENHA_MUITO_LONGA" xml:space="preserve">
+    <value>A senha é longa demais. Use no máximo 72 caracteres (letras acentuadas e emojis contam como mais de um).</value>
+  </data>
   <data name="SENHA_VAZIO" xml:space="preserve">
     <value>Senha não pode ser vazia</value>
   </data>
