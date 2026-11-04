@@ -75,12 +75,9 @@ namespace Infrastructure
             services.AddSingleton<ISenhaCriptografada>(provider =>
             {
                 var config = provider.GetRequiredService<IConfiguration>();
-
-                // a AdditionalKey só verifica as senhas antigas (SHA-512); as novas são BCrypt
-                var additionalKey = config.GetValue<string>("Settings:Password:AdditionalKey");
                 var fatorCusto = config.GetValue("Settings:Password:BCryptFatorCusto", BCryptSenha.FATOR_CUSTO_PADRAO);
 
-                return new BCryptSenha(fatorCusto, new Sha512Encripter(additionalKey!));
+                return new BCryptSenha(fatorCusto);
             });
         }
 

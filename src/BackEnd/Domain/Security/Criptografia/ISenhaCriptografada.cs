@@ -1,7 +1,6 @@
 ﻿namespace Domain.Security.Criptografia
 {
-    // Senhas novas são gravadas em BCrypt. Hashes SHA-512 antigos ainda são aceitos na verificação
-    // e devem ser regravados (PrecisaAtualizar) assim que o cliente entrar com a senha certa.
+    // Senhas gravadas em BCrypt
     public interface ISenhaCriptografada
     {
         public string Gerar(string senha);
@@ -10,7 +9,7 @@
         // para o tempo de resposta não revelar quais e-mails estão cadastrados
         public bool Verificar(string senha, string? hashSalvo);
 
-        // true para hash SHA-512 antigo ou BCrypt com custo menor que o configurado
+        // true quando o hash foi gerado com custo menor que o configurado (o login regrava com o custo atual)
         public bool PrecisaAtualizar(string hashSalvo);
     }
 }

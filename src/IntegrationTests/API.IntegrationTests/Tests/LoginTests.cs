@@ -106,53 +106,28 @@ namespace API.IntegrationTests.Tests
         }
 
         // ════════════════════════════════════════════════════════════════
-        // CONVERSÃO DAS SENHAS ANTIGAS (SHA-512 → BCrypt)
+        // HASH DA SENHA (BCrypt)
         // ════════════════════════════════════════════════════════════════
 
-        // Cliente cadastrado antes da troca para BCrypt: entra com a mesma senha e sai com o hash convertido
+        // O formato SHA-512 antigo não é mais aceito: uma conta que ainda o tivesse não entra, mas sem erro 500
         [Fact]
-        public async Task Should_ConverterSenhaAntigaParaBCrypt_When_LoginComSenhaCerta()
+        public async Task Should_Return401SemAlterarHash_When_SenhaNoFormatoAntigo()
         {
             // Arrange
             var ct = TestContext.Current.CancellationToken;
-            var cliente = await _fixture.CadastrarClienteComSenhaAntiga(EMAIL, SENHA);
-            using var client = _fixture.CriarClientSemCookies();
-
-            var hashAntigo = await _fixture.SenhaGravada(cliente.Id);
-            hashAntigo.Should().NotStartWith("$2", because: "o cenário começa com o formato SHA-512");
-
-            // Act
-            var primeiro = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = SENHA }, ct);
-            var hashDepois = await _fixture.SenhaGravada(cliente.Id);
-            var segundo = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = SENHA }, ct);
-
-            // Assert
-            primeiro.StatusCode.Should().Be(HttpStatusCode.OK);
-            segundo.StatusCode.Should().Be(HttpStatusCode.OK, because: "depois de convertida, a mesma senha continua entrando");
-            hashDepois.Should().StartWith("$2");
-
-            using var scope = _fixture.CriarScope();
-            _fixture.GetCriptografia(scope).Verificar(SENHA, hashDepois).Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task Should_ManterSenhaAntiga_When_LoginComSenhaErrada()
-        {
-            // Arrange
-            var ct = TestContext.Current.CancellationToken;
-            var cliente = await _fixture.CadastrarClienteComSenhaAntiga(EMAIL, SENHA);
-            var hashAntigo = await _fixture.SenhaGravada(cliente.Id);
+            const string hashAntigo = "3c9909afec25354d551dae21590bb26e38d53f2173b8d3dc3eee4c047e7ab1c1eb8b85103e3be7ba613b31bb5c9c36214dc9f14a42fd7a2fdb84856bca5c44c2";
+            var cliente = await _fixture.CadastrarClienteComHash(EMAIL, hashAntigo);
             using var client = _fixture.CriarClientSemCookies();
 
             // Act
-            var response = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = "SenhaErrada" }, ct);
+            var response = await client.PostAsJsonAsync(ENDPOINT, new RequestLoginCliente { Email = EMAIL, Senha = SENHA }, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
             (await _fixture.SenhaGravada(cliente.Id)).Should().Be(hashAntigo);
         }
 
-        // Sem conversão pendente, o login não regrava o hash a cada entrada
+        // O login não regrava o hash a cada entrada
         [Fact]
         public async Task Should_NaoRegravarHash_When_SenhaJaEmBCrypt()
         {

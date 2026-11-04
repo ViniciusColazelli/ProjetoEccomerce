@@ -4,7 +4,6 @@ using Domain.Entities;
 using Domain.Security.Criptografia;
 using Domain.Security.Tokens;
 using Infrastructure.DataAcess;
-using Infrastructure.Security.Criptografia;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -98,14 +97,9 @@ namespace API.IntegrationTests.Fixture
             return await GravarCliente(email, GetCriptografia(scope).Gerar(senha), nome);
         }
 
-        // Cliente cadastrado antes da troca para BCrypt: senha no formato SHA-512 + AdditionalKey
-        public async Task<Clientes> CadastrarClienteComSenhaAntiga(string email, string senha, string nome = "Cliente Antigo")
-        {
-            using var scope = CriarScope();
-            var additionalKey = scope.ServiceProvider.GetRequiredService<IConfiguration>()["Settings:Password:AdditionalKey"]!;
-
-            return await GravarCliente(email, new Sha512Encripter(additionalKey).Criptografia(senha), nome);
-        }
+        // Grava o hash exatamente como informado (ex.: um hash no formato antigo, que não é mais aceito)
+        public Task<Clientes> CadastrarClienteComHash(string email, string hashSenha, string nome = "Cliente Teste") =>
+            GravarCliente(email, hashSenha, nome);
 
         private async Task<Clientes> GravarCliente(string email, string hashSenha, string nome)
         {
@@ -123,18 +117,6 @@ namespace API.IntegrationTests.Fixture
             await dbContext.SaveChangesAsync();
 
             return cliente;
-        }
-
-        // Client autenticado com o token de um cliente que já existe, sem passar pelo login
-        public HttpClient CriarClientComToken(Clientes cliente)
-        {
-            using var scope = CriarScope();
-            var token = scope.ServiceProvider.GetRequiredService<IGeradorTokenJwt>().GerarToken(cliente);
-
-            var client = _factory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-            return client;
         }
 
         public async Task<string> SenhaGravada(int clienteId)
