@@ -45,7 +45,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(CorsExtension.PoliticaFrontEnd);
 
-app.UseHttpsRedirection();
+// Em Development o front chama a API pelo proxy do Next, que manda X-Forwarded-Proto: http:
+// redirecionar mandaria o navegador direto para a API, sem o cookie de sessão
+if (app.Environment.IsDevelopment() == false)
+    app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
