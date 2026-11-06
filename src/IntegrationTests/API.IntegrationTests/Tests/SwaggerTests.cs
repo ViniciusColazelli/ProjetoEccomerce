@@ -1,7 +1,7 @@
 using API.IntegrationTests.Fixture;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.Swagger;
 using Xunit;
 
@@ -14,14 +14,14 @@ namespace API.IntegrationTests.Tests
         public SwaggerTests(EcommerceFixture fixture) : base(fixture) { }
 
         [Theory]
-        [InlineData("/api/pedidos", OperationType.Get, "200,400,401")]
-        [InlineData("/api/pedidos", OperationType.Post, "201,400,401,409")]
-        [InlineData("/api/pedidos/{id}", OperationType.Get, "200,401,404")]
-        [InlineData("/api/pedidos/{id}/cancelar", OperationType.Post, "200,401,404,409")]
-        [InlineData("/api/admin/pedidos", OperationType.Get, "200,400,401,403")]
-        [InlineData("/api/admin/pedidos/{id}", OperationType.Get, "200,401,403,404")]
-        [InlineData("/api/admin/pedidos/{id}/status", OperationType.Post, "200,400,401,403,404,409")]
-        public void Should_DocumentarRotasDePedido(string rota, OperationType metodo, string respostas)
+        [InlineData("/api/pedidos", "GET", "200,400,401")]
+        [InlineData("/api/pedidos", "POST", "201,400,401,409")]
+        [InlineData("/api/pedidos/{id}", "GET", "200,401,404")]
+        [InlineData("/api/pedidos/{id}/cancelar", "POST", "200,401,404,409")]
+        [InlineData("/api/admin/pedidos", "GET", "200,400,401,403")]
+        [InlineData("/api/admin/pedidos/{id}", "GET", "200,401,403,404")]
+        [InlineData("/api/admin/pedidos/{id}/status", "POST", "200,400,401,403,404,409")]
+        public void Should_DocumentarRotasDePedido(string rota, string metodo, string respostas)
         {
             // Arrange
             using var scope = _fixture.CriarScope();
@@ -32,8 +32,30 @@ namespace API.IntegrationTests.Tests
 
             // Assert
             documento.Paths.Should().ContainKey(rota);
-            var operacao = documento.Paths[rota].Operations.Should().ContainKey(metodo).WhoseValue;
-            operacao.Responses.Keys.Should().BeEquivalentTo(respostas.Split(','));
+            var operacao = documento.Paths[rota].Operations.Should().ContainKey(new HttpMethod(metodo)).WhoseValue;
+            operacao.Responses.Should().NotBeNull();
+            operacao.Responses!.Keys.Should().BeEquivalentTo(respostas.Split(','));
+        }
+
+        // O cadeado do Swagger: o esquema JWT existe e é exigido em todas as rotas
+        [Fact]
+        public void Should_DocumentarAutenticacaoJwt()
+        {
+            // Arrange
+            using var scope = _fixture.CriarScope();
+            var swagger = scope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
+
+            // Act
+            var documento = swagger.GetSwagger("v1");
+
+            // Assert
+            var esquema = documento.Components!.SecuritySchemes.Should().ContainKey("Bearer").WhoseValue;
+            esquema.Type.Should().Be(SecuritySchemeType.Http);
+            esquema.Scheme.Should().Be("Bearer");
+            esquema.BearerFormat.Should().Be("JWT");
+
+            documento.Security.Should().ContainSingle()
+                .Which.Keys.Should().ContainSingle(referencia => referencia.Reference.Id == "Bearer");
         }
 
         [Theory]
@@ -53,7 +75,7 @@ namespace API.IntegrationTests.Tests
             var documento = swagger.GetSwagger("v1");
 
             // Assert
-            documento.Components.Schemas.Should().ContainKey(schema);
+            documento.Components!.Schemas.Should().ContainKey(schema);
         }
     }
 }
