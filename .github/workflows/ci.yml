@@ -54,15 +54,15 @@ jobs:
 
     steps:
       - name: Baixa o código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Instala o .NET 8
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
 
       - name: Cache dos pacotes NuGet
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
@@ -90,8 +90,74 @@ jobs:
       # em caso de falha, o relatório fica disponível para download na página da execução
       - name: Publica o relatório dos testes
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: resultado-dos-testes
           path: TestResults
           retention-days: 7
+
+  imagem-docker:
+    name: Imagem Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Monta a imagem com o mesmo Dockerfile que o Render usa no deploy, sem publicar em lugar nenhum:
+    # se o Dockerfile ou o publish quebrarem, o problema aparece aqui e não no deploy
+    steps:
+      - name: Baixa o código
+        uses: actions/checkout@v7
+
+      - name: Prepara o Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Monta a imagem
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          tags: belissima-api:ci
+          # reaproveita as camadas das execuções anteriores (ex.: o restore, quando os .csproj não mudam)
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  pacotes-vulneraveis:
+    name: Pacotes vulneráveis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Baixa o código
+        uses: actions/checkout@v7
+
+      - name: Instala o .NET 8
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restaura os pacotes
+        run: dotnet restore ProjetoEccomerce.sln
+
+      # Compara os pacotes (inclusive os que vêm como dependência de outros) com o banco de
+      # vulnerabilidades do NuGet e falha se encontrar qualquer um, de qualquer gravidade
+      - name: Procura pacotes com vulnerabilidade conhecida
+        run: |
+          dotnet list ProjetoEccomerce.sln package --vulnerable --include-transitive --format json > vulneraveis.json
+
+          # se o NuGet não pôde ser consultado, o resultado não é confiável
+          if jq -e '(.problems // []) | length > 0' vulneraveis.json > /dev/null; then
+            jq -r '.problems[] | "::error::\(.text)"' vulneraveis.json
+            exit 1
+          fi
+
+          jq -r '.projects[] | .path as $projeto | .frameworks[]?
+            | (.topLevelPackages[]?, .transitivePackages[]?)
+            | "::error::\($projeto | split("/") | last): \(.id) \(.resolvedVersion) (\([.vulnerabilities[].severity] | join(", "))) \([.vulnerabilities[].advisoryurl] | join(" "))"' \
+            vulneraveis.json > encontrados.txt
+
+          if [ -s encontrados.txt ]; then
+            cat encontrados.txt
+            echo "Atualize os pacotes acima (em pacote transitivo, adicione a versão corrigida direto no .csproj)."
+            exit 1
+          fi
+
+          echo "Nenhum pacote vulnerável."
