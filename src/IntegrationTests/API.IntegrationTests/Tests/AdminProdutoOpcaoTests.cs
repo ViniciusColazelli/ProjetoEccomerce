@@ -122,6 +122,26 @@ namespace API.IntegrationTests.Tests
             body.GetProperty("errors")[0].GetString().Should().Be("O preço adicional não pode ser negativo.");
         }
 
+        [Theory]
+        [InlineData("Tamanho", "GG")]
+        [InlineData("cor", "Azul")]
+        public async Task Should_Return400_When_PrecoAdicionalEmTamanhoOuCor(string tipo, string valor)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var produto = await PrepararProduto(ct);
+
+            // Act
+            var response = await client.PostAsJsonAsync(Endpoint(produto.Id), NovoRequest(tipo, valor, 5m), ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            body.GetProperty("errors")[0].GetString().Should().Be("Só personalização pode ter preço adicional: tamanho e cor não mudam o preço.");
+        }
+
         [Fact]
         public async Task Should_Return400_When_OpcaoJaCadastrada_IgnorandoMaiusculas()
         {
@@ -224,10 +244,35 @@ namespace API.IntegrationTests.Tests
             var produto = await PrepararProduto(ct, g);
 
             // Act
-            var response = await client.PutAsJsonAsync($"{Endpoint(produto.Id)}/{g.Id}", new RequestUpdateOpcao { Valor = "G", PrecoAdicional = 5m }, ct);
+            var response = await client.PutAsJsonAsync($"{Endpoint(produto.Id)}/{g.Id}", new RequestUpdateOpcao { Valor = "G" }, ct);
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.NoContent, because: "a própria opção não conta como duplicada");
+        }
+
+        [Theory]
+        [InlineData(TipoOpcao.Tamanho, "G")]
+        [InlineData(TipoOpcao.Cor, "Azul")]
+        public async Task Should_Return400_When_AtualizarTamanhoOuCorComPrecoAdicional(TipoOpcao tipo, string valor)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var opcao = Opcao(tipo, valor);
+            var produto = await PrepararProduto(ct, opcao);
+
+            // Act
+            var response = await client.PutAsJsonAsync($"{Endpoint(produto.Id)}/{opcao.Id}", new RequestUpdateOpcao { Valor = valor, PrecoAdicional = 5m }, ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+            var body = await response.Content.ReadFromJsonAsync<JsonElement>(ct);
+            body.GetProperty("errors")[0].GetString().Should().Be("Só personalização pode ter preço adicional: tamanho e cor não mudam o preço.");
+
+            using var scope = _fixture.CriarScope();
+            var salva = await _fixture.GetDbContext(scope).ProdutoOpcoes.SingleAsync(ct);
+            salva.PrecoAdicional.Should().Be(0);
         }
 
         // ════════════════════════════════════════════════════════════════

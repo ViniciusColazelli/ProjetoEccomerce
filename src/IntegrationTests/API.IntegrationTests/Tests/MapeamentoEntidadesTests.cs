@@ -285,6 +285,30 @@ namespace API.IntegrationTests.Tests
             await acao.Should().ThrowAsync<DbUpdateException>();
         }
 
+        [Theory]
+        [InlineData(TipoOpcao.Tamanho)]
+        [InlineData(TipoOpcao.Cor)]
+        public async Task Should_RejeitarPrecoAdicional_When_TamanhoOuCor(TipoOpcao tipo)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            await PrepararProdutoComVariante(ct, quantidade: 0);
+
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+            var produtoId = await dbContext.Produtos.Select(p => p.Id).SingleAsync(ct);
+
+            // grava direto pelo EF, sem passar pela validação da API
+            dbContext.ProdutoOpcoes.Add(new ProdutoOpcoes { ProdutoId = produtoId, Tipo = tipo, Valor = "Extra", PrecoAdicional = 5m });
+
+            // Act
+            var acao = () => dbContext.SaveChangesAsync(ct);
+
+            // Assert: 23514 = violação de CHECK
+            await acao.Should().ThrowAsync<DbUpdateException>()
+                .Where(e => ((Npgsql.PostgresException)e.InnerException!).SqlState == "23514");
+        }
+
         [Fact]
         public async Task Should_RejeitarEmailDuplicado_IgnorandoMaiusculas()
         {
