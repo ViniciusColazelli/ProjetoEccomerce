@@ -192,6 +192,9 @@
   <data name="PRECO_ADICIONAL_INVALIDO" xml:space="preserve">
     <value>O preço adicional não pode ser negativo.</value>
   </data>
+  <data name="PRECO_ADICIONAL_SO_PERSONALIZACAO" xml:space="preserve">
+    <value>Só personalização pode ter preço adicional: tamanho e cor não mudam o preço.</value>
+  </data>
   <data name="PRECO_FORMATO_INVALIDO" xml:space="preserve">
     <value>O preço deve ter no máximo 8 dígitos inteiros e 2 casas decimais.</value>
   </data>

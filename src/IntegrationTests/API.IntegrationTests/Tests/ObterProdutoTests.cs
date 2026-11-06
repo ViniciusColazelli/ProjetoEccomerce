@@ -27,7 +27,7 @@ namespace API.IntegrationTests.Tests
             var ct = TestContext.Current.CancellationToken;
 
             var p = Opcao(TipoOpcao.Tamanho, "P");
-            var g = Opcao(TipoOpcao.Tamanho, "G", precoAdicional: 5m);
+            var g = Opcao(TipoOpcao.Tamanho, "G");
             var azul = Opcao(TipoOpcao.Cor, "Azul");
             var bordado = Opcao(TipoOpcao.Personalizacao, "Bordado", precoAdicional: 15m);
 
@@ -50,7 +50,7 @@ namespace API.IntegrationTests.Tests
             body.Disponivel.Should().BeTrue();
 
             body.Tamanhos.Select(t => t.Valor).Should().Equal("P", "G");
-            body.Tamanhos.Single(t => t.Valor == "G").PrecoAdicional.Should().Be(5m);
+            body.Tamanhos.Should().OnlyContain(t => t.PrecoAdicional == 0, because: "tamanho não muda o preço");
             body.Cores.Should().ContainSingle(c => c.Valor == "Azul");
             body.Personalizacoes.Should().ContainSingle(c => c.Valor == "Bordado" && c.PrecoAdicional == 15m);
 

@@ -41,6 +41,10 @@ namespace Application.UseCases.ProdutoOpcao.Update
 
             var result = validator.Validate(request);
 
+            // a edição não traz o tipo: a regra do RegistrarOpcaoValidator usa o tipo gravado
+            if (opcao.Tipo.PodeTerPrecoAdicional().IsFalse() && request.PrecoAdicional != 0)
+                result.Errors.Add(new FluentValidation.Results.ValidationFailure(string.Empty, ResourceMensagensDeErro.PRECO_ADICIONAL_SO_PERSONALIZACAO));
+
             if (string.IsNullOrWhiteSpace(request.Valor).IsFalse())
             {
                 var opcaoExiste = await _opcaoRepository.ExisteOpcao(opcao.ProdutoId, opcao.Tipo, request.Valor, ignorarOpcaoId: opcao.Id);

@@ -284,7 +284,16 @@ namespace Exceptions {
                 return ResourceManager.GetString("PRECO_ADICIONAL_INVALIDO", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Só personalização pode ter preço adicional: tamanho e cor não mudam o preço..
+        /// </summary>
+        public static string PRECO_ADICIONAL_SO_PERSONALIZACAO {
+            get {
+                return ResourceManager.GetString("PRECO_ADICIONAL_SO_PERSONALIZACAO", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Consulta uma cadeia de caracteres localizada semelhante a O preço deve ter no máximo 8 dígitos inteiros e 2 casas decimais..
         /// </summary>
