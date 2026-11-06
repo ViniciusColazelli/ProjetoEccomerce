@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using System.Reflection;
 using System.Text;
 
@@ -37,13 +38,29 @@ namespace Infrastructure
         {
             services.AddDbContext<EccomerceDbContext>(dbContextOptions =>
             {
-                dbContextOptions.UseNpgsql(configuration.GetConnectionString("ConnectionPostgreSql"));
+                dbContextOptions.UseNpgsql(ConnectionStringPostgreSql(configuration));
             });
+        }
+
+        // O Npgsql 9+ tenta criptografia GSS (Kerberos) a cada conexão nova. A imagem Docker do .NET 10 (Ubuntu)
+        // não tem a libgssapi, então a tentativa só gerava "Cannot load library libgssapi_krb5.so.2" no log;
+        // o Supabase não usa Kerberos (a conexão já é criptografada pelo SSL)
+        private static string? ConnectionStringPostgreSql(IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("ConnectionPostgreSql");
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+                return connectionString;
+
+            return new NpgsqlConnectionStringBuilder(connectionString)
+            {
+                GssEncryptionMode = GssEncryptionMode.Disable
+            }.ConnectionString;
         }
 
         private static void AddFluentMigrator(IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("ConnectionPostgreSql");
+            var connectionString = ConnectionStringPostgreSql(configuration);
 
             services.AddFluentMigratorCore().ConfigureRunner(options => options
                 .AddPostgres()
