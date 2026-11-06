@@ -116,9 +116,8 @@ jobs:
           context: .
           push: false
           tags: belissima-api:ci
-          # reaproveita as camadas das execuções anteriores (ex.: o restore, quando os .csproj não mudam)
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Sem cache de camadas: o Dockerfile copia todo o src/BackEnd antes do restore, então qualquer
+          # mudança no código invalida o restore e o publish, e exportar o cache levava mais que o build
 
   pacotes-vulneraveis:
     name: Pacotes vulneráveis
