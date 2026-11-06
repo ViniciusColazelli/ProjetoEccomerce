@@ -106,8 +106,11 @@ namespace Infrastructure.DataAcess.Repositories
         {
             if (string.IsNullOrWhiteSpace(filtro.Nome).IsFalse())
             {
-                var nome = filtro.Nome!.Trim().ToLower();
-                consulta = consulta.Where(produto => produto.Nome.ToLower().Contains(nome));
+                // Ignora maiúsculas e acentos: "calca" encontra "Calça" (extensão unaccent, migration 15).
+                // O unaccent vem antes do lower nos dois lados: assim "Ç" vira "c" em qualquer locale do banco
+                var nome = filtro.Nome!.Trim();
+                consulta = consulta.Where(produto =>
+                    EF.Functions.Unaccent(produto.Nome).ToLower().Contains(EF.Functions.Unaccent(nome).ToLower()));
             }
 
             if (filtro.SomenteDisponiveis)
