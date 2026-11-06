@@ -18,7 +18,7 @@ namespace Infrastructure.DataAcess.Repositories
             await _dbcontext.Clientes.AddAsync(clientes);
         }
 
-        public async Task<bool> ExisteClienteComEmail(string email) 
+        public async Task<bool> ExisteClienteComEmail(string email)
         {
             // e-mail não diferencia maiúsculas: "Ana@x.com" e "ana@x.com" são a mesma conta
             var emailNormalizado = email.Trim().ToLower();

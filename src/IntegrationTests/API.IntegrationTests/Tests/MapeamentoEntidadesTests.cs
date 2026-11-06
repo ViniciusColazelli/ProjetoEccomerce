@@ -216,9 +216,9 @@ namespace API.IntegrationTests.Tests
         // ════════════════════════════════════════════════════════════════
 
         [Theory]
-        [InlineData("status = 'Pendente'")]
-        [InlineData("total = -1")]
-        public async Task Should_RejeitarPedidoInvalido(string alteracao)
+        [InlineData("status")]   // 'Pendente' não é um StatusPedido
+        [InlineData("total")]    // -1
+        public async Task Should_RejeitarPedidoInvalido(string coluna)
         {
             // Arrange
             var ct = TestContext.Current.CancellationToken;
@@ -226,10 +226,16 @@ namespace API.IntegrationTests.Tests
             var pedidoId = await PrepararPedido(ct, varianteId);
 
             using var scope = _fixture.CriarScope();
+            var banco = _fixture.GetDbContext(scope).Database;
 
-            // Act: o SQL direto pula a conversão do enum, para o CHECK do banco ser o único a barrar
-            var acao = () => _fixture.GetDbContext(scope).Database
-                .ExecuteSqlRawAsync($"UPDATE pedidos SET {alteracao} WHERE id = {pedidoId}", ct);
+            // Act: o SQL direto pula a conversão do enum, para o CHECK do banco ser o único a barrar.
+            // ExecuteSqlAsync com interpolação vira parâmetros ($1, $2), sem montar SQL com texto
+            Func<Task<int>> acao = coluna switch
+            {
+                "status" => () => banco.ExecuteSqlAsync($"UPDATE pedidos SET status = {"Pendente"} WHERE id = {pedidoId}", ct),
+                "total" => () => banco.ExecuteSqlAsync($"UPDATE pedidos SET total = {-1m} WHERE id = {pedidoId}", ct),
+                _ => throw new ArgumentOutOfRangeException(nameof(coluna))
+            };
 
             // Assert
             await acao.Should().ThrowAsync<Npgsql.PostgresException>().Where(e => e.SqlState == "23514");

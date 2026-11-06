@@ -144,7 +144,7 @@ namespace API.IntegrationTests.Tests
             using var scope = _fixture.CriarScope();
 
             var hashDoPostgres = await _fixture.GetDbContext(scope).Database
-                .SqlQueryRaw<string>($"SELECT crypt('{SENHA}', gen_salt('bf', {CUSTO})) AS \"Value\"")
+                .SqlQuery<string>($"SELECT crypt({SENHA}, gen_salt('bf', {CUSTO})) AS \"Value\"")
                 .SingleAsync(ct);
 
             // Act / Assert

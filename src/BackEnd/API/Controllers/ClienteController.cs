@@ -19,7 +19,7 @@ namespace API.Controllers
         [AllowAnonymous]
         [EnableRateLimiting(RateLimitExtension.PoliticaAutenticacao)]
         [ProducesResponseType(typeof(ResponseClienteRegistrado), StatusCodes.Status201Created)]
-        public async Task<IActionResult> Registrar([FromServices] IRegistrarClienteUseCase useCase, [FromBody]RequestRegistrarCliente request)
+        public async Task<IActionResult> Registrar([FromServices] IRegistrarClienteUseCase useCase, [FromBody] RequestRegistrarCliente request)
         {
             var result = await useCase.Execute(request);
 

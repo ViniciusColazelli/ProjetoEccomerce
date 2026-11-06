@@ -11,8 +11,8 @@
 
         public ResponseErro(string errors)
         {
-            Errors = new List<string> 
-            { 
+            Errors = new List<string>
+            {
                 errors
             };
         }
