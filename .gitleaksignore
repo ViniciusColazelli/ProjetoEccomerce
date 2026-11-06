@@ -1,0 +1,7 @@
+# Achados conhecidos do gitleaks que não devem barrar a CI (um por linha: commit:arquivo:regra:linha).
+# Só adicione aqui um segredo que JÁ FOI TROCADO: o histórico do Git é público e continua tendo o valor antigo.
+
+# Senhas antigas do Supabase no appsettings.Development.json (abril/2026), antes de ele ir para o .gitignore
+e99e934e0df3342d66b39516c06b66f9945b18d5:src/BackEnd/Controller.API/appsettings.Development.json:generic-api-key:3
+e0b786737f002e77e19f26cc980f8121195aa80e:src/BackEnd/Controller.API/appsettings.Development.json:generic-api-key:3
+0dcf5fcff82244f492202f9c5c8ebb09a1803c6e:src/BackEnd/Controller.API/appsettings.Development.json:generic-api-key:3
