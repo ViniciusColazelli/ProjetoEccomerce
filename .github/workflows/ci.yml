@@ -1,0 +1,97 @@
+# Verificações que precisam passar antes do merge na main.
+# Marque os jobs como obrigatórios em Settings → Branches → regra de proteção da main.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# um commit novo no mesmo PR cancela a execução anterior, que já ficou desatualizada
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-e-testes:
+    name: Build e testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Postgres descartável, criado do zero a cada execução: os testes nunca tocam no banco
+    # da homologação, e todas as migrations são aplicadas num banco vazio
+    services:
+      postgres:
+        image: postgres:16.13-alpine3.23
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: belissima_testes
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d belissima_testes"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Configuração só para a CI: o appsettings.Testing.json não está no Git.
+    # Nada aqui é segredo real: o banco morre no fim do job e a chave do JWT só assina tokens dos testes
+    env:
+      ConnectionStrings__ConnectionPostgreSql: Host=localhost;Port=5432;Database=belissima_testes;Username=postgres;Password=postgres
+      Jwt__ChaveSecreta: chave-usada-somente-nos-testes-do-github-actions
+      Jwt__Issuer: EccomerceAPI
+      Jwt__Audience: EccomerceFrontEnd
+      Jwt__ExpiracaoEmMinutos: "60"
+
+    steps:
+      - name: Baixa o código
+        uses: actions/checkout@v4
+
+      - name: Instala o .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Cache dos pacotes NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      # o Supabase já vem com a extensão; o Postgres puro não (SenhaTests usa crypt/gen_salt)
+      - name: Habilita o pgcrypto no banco de testes
+        run: psql "postgresql://postgres:postgres@localhost:5432/belissima_testes" -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+
+      - name: Restaura os pacotes
+        run: dotnet restore ProjetoEccomerce.sln
+
+      - name: Compila
+        run: dotnet build ProjetoEccomerce.sln --configuration Release --no-restore
+
+      - name: Roda os testes
+        run: >-
+          dotnet test ProjetoEccomerce.sln
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=resultado.trx"
+          --logger "console;verbosity=normal"
+          --results-directory TestResults
+
+      # em caso de falha, o relatório fica disponível para download na página da execução
+      - name: Publica o relatório dos testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultado-dos-testes
+          path: TestResults
+          retention-days: 7
