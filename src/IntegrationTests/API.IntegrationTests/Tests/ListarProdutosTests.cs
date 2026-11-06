@@ -158,6 +158,33 @@ namespace API.IntegrationTests.Tests
             body.Produtos.Select(p => p.Nome).Should().Equal("Camiseta Polo", "Polo Infantil");
         }
 
+        // O acento pode estar no nome do produto, na busca ou nos dois
+        [Theory]
+        [InlineData("calca")]
+        [InlineData("calça")]
+        [InlineData("CALÇA")]
+        public async Task Should_FiltrarPorNome_IgnorandoAcentos(string busca)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+
+            await PrepararProdutos(ct,
+                NovoProduto("Calça Social", 89.90m),
+                NovoProduto("CALÇA BRIM", 79.90m),
+                NovoProduto("Calca Jeans", 69.90m),
+                NovoProduto("Jaleco", 99.90m));
+
+            // Act
+            var response = await _fixture.Client.GetAsync($"{ENDPOINT}?nome={Uri.EscapeDataString(busca)}", ct);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var body = await response.Content.ReadFromJsonAsync<ResponseProdutos>(ct);
+            body!.Total.Should().Be(3);
+            body.Produtos.Select(p => p.Nome).Should().BeEquivalentTo("Calça Social", "CALÇA BRIM", "Calca Jeans");
+        }
+
         [Fact]
         public async Task Should_Return200WithListaVazia_When_NomeNaoEncontrado()
         {
