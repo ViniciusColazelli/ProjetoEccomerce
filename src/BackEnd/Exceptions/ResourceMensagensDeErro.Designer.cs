@@ -572,5 +572,59 @@ namespace Exceptions {
                 return ResourceManager.GetString("QUANTIDADE_ITEM_INVALIDA", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Envie a foto e a miniatura..
+        /// </summary>
+        public static string IMAGEM_OBRIGATORIA {
+            get {
+                return ResourceManager.GetString("IMAGEM_OBRIGATORIA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A foto precisa ser JPEG, PNG ou WebP..
+        /// </summary>
+        public static string IMAGEM_TIPO_INVALIDO {
+            get {
+                return ResourceManager.GetString("IMAGEM_TIPO_INVALIDO", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a A foto deve ter no máximo 3 MB e a miniatura, 1 MB..
+        /// </summary>
+        public static string IMAGEM_MUITO_GRANDE {
+            get {
+                return ResourceManager.GetString("IMAGEM_MUITO_GRANDE", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Foto não encontrada..
+        /// </summary>
+        public static string IMAGEM_NAO_ENCONTRADA {
+            get {
+                return ResourceManager.GetString("IMAGEM_NAO_ENCONTRADA", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a O produto já tem 8 fotos, o máximo permitido. Apague uma antes de enviar outra..
+        /// </summary>
+        public static string PRODUTO_LIMITE_IMAGENS {
+            get {
+                return ResourceManager.GetString("PRODUTO_LIMITE_IMAGENS", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Consulta uma cadeia de caracteres localizada semelhante a Informe todas as fotos do produto, cada uma uma vez só..
+        /// </summary>
+        public static string ORDEM_IMAGENS_INVALIDA {
+            get {
+                return ResourceManager.GetString("ORDEM_IMAGENS_INVALIDA", resourceCulture);
+            }
+        }
     }
 }

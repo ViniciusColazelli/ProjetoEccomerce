@@ -1,8 +1,10 @@
 using API.IntegrationTests.Fixture;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Repositories;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace API.IntegrationTests.Tests
@@ -211,9 +213,65 @@ namespace API.IntegrationTests.Tests
             await acao.Should().ThrowAsync<DbUpdateConcurrencyException>();
         }
 
+        [Fact]
+        public async Task Should_PersistirImagensDoProdutoELerNaOrdem()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+
+            using (var scopeGravacao = _fixture.CriarScope())
+            {
+                var dbContext = _fixture.GetDbContext(scopeGravacao);
+                dbContext.Produtos.Add(new Produtos
+                {
+                    Nome = "Camiseta Polo",
+                    PrecoBase = 59.90m,
+                    Ativo = true,
+                    Imagens =
+                    {
+                        new ProdutoImagens { Caminho = "produtos/1/costas.webp", CaminhoMiniatura = "produtos/1/costas-mini.webp", Ordem = 1 },
+                        new ProdutoImagens { Caminho = "produtos/1/frente.webp", CaminhoMiniatura = "produtos/1/frente-mini.webp", Ordem = 0 }
+                    }
+                });
+                await dbContext.SaveChangesAsync(ct);
+            }
+
+            // Act
+            using var scope = _fixture.CriarScope();
+            var produtoId = await _fixture.GetDbContext(scope).Produtos.Select(p => p.Id).SingleAsync(ct);
+            var imagens = await scope.ServiceProvider.GetRequiredService<IProdutoImagemRepository>().ListarPorProduto(produtoId);
+
+            // Assert: a ordem define a capa, não a ordem de gravação
+            imagens.Select(i => i.Caminho).Should().Equal("produtos/1/frente.webp", "produtos/1/costas.webp");
+            imagens[0].CaminhoMiniatura.Should().Be("produtos/1/frente-mini.webp");
+            imagens.Should().OnlyContain(i => i.CriadoEm.Kind == DateTimeKind.Utc && i.CriadoEm > DateTime.UtcNow.AddMinutes(-5),
+                because: "o banco preenche criado_em em UTC");
+        }
+
         // ════════════════════════════════════════════════════════════════
         // REGRAS DO BANCO
         // ════════════════════════════════════════════════════════════════
+
+        [Fact]
+        public async Task Should_RejeitarImagemComOrdemNegativa()
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            await PrepararProdutoComVariante(ct, quantidade: 0);
+
+            using var scope = _fixture.CriarScope();
+            var dbContext = _fixture.GetDbContext(scope);
+            var produtoId = await dbContext.Produtos.Select(p => p.Id).SingleAsync(ct);
+
+            dbContext.ProdutoImagens.Add(new ProdutoImagens { ProdutoId = produtoId, Caminho = "a.webp", CaminhoMiniatura = "a-mini.webp", Ordem = -1 });
+
+            // Act
+            var acao = () => dbContext.SaveChangesAsync(ct);
+
+            // Assert: 23514 = violação de CHECK
+            await acao.Should().ThrowAsync<DbUpdateException>()
+                .Where(e => ((Npgsql.PostgresException)e.InnerException!).SqlState == "23514");
+        }
 
         [Theory]
         [InlineData("status")]   // 'Pendente' não é um StatusPedido

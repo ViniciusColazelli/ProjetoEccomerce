@@ -3,6 +3,7 @@ using Application.Response;
 using Application.Services.Mapeamento;
 using Domain.Extensions;
 using Domain.Repositories;
+using Domain.Services.Armazenamento;
 using Exceptions.ExceptionBase;
 
 namespace Application.UseCases.Produto.Listar
@@ -10,10 +11,12 @@ namespace Application.UseCases.Produto.Listar
     public class ListarProdutosUseCase : IListarProdutosUseCase
     {
         private readonly IProdutoRepository _produtoRepository;
+        private readonly IArmazenamentoImagens _armazenamento;
 
-        public ListarProdutosUseCase(IProdutoRepository produtoRepository)
+        public ListarProdutosUseCase(IProdutoRepository produtoRepository, IArmazenamentoImagens armazenamento)
         {
             _produtoRepository = produtoRepository;
+            _armazenamento = armazenamento;
         }
 
         public async Task<ResponseProdutos> Execute(RequestListarProdutos request)
@@ -32,7 +35,8 @@ namespace Application.UseCases.Produto.Listar
                     Id = produto.Id,
                     Nome = produto.Nome,
                     Descricao = produto.Descricao,
-                    PrecoBase = produto.PrecoBase
+                    PrecoBase = produto.PrecoBase,
+                    ImagemUrl = MapearImagem.CapaMiniatura(produto.Imagens, _armazenamento)
                 }).ToList(),
                 Pagina = request.Pagina,
                 TamanhoPagina = request.TamanhoPagina,

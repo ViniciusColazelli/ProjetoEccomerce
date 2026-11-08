@@ -288,4 +288,22 @@
   <data name="QUANTIDADE_ITEM_INVALIDA" xml:space="preserve">
     <value>A quantidade de cada item deve estar entre 1 e 999.</value>
   </data>
+  <data name="IMAGEM_OBRIGATORIA" xml:space="preserve">
+    <value>Envie a foto e a miniatura.</value>
+  </data>
+  <data name="IMAGEM_TIPO_INVALIDO" xml:space="preserve">
+    <value>A foto precisa ser JPEG, PNG ou WebP.</value>
+  </data>
+  <data name="IMAGEM_MUITO_GRANDE" xml:space="preserve">
+    <value>A foto deve ter no máximo 3 MB e a miniatura, 1 MB.</value>
+  </data>
+  <data name="IMAGEM_NAO_ENCONTRADA" xml:space="preserve">
+    <value>Foto não encontrada.</value>
+  </data>
+  <data name="PRODUTO_LIMITE_IMAGENS" xml:space="preserve">
+    <value>O produto já tem 8 fotos, o máximo permitido. Apague uma antes de enviar outra.</value>
+  </data>
+  <data name="ORDEM_IMAGENS_INVALIDA" xml:space="preserve">
+    <value>Informe todas as fotos do produto, cada uma uma vez só.</value>
+  </data>
 </root>

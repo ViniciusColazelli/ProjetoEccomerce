@@ -1,7 +1,9 @@
 using Application.Response;
+using Application.Services.Mapeamento;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Repositories;
+using Domain.Services.Armazenamento;
 using Exceptions;
 using Exceptions.ExceptionBase;
 
@@ -10,10 +12,12 @@ namespace Application.UseCases.Produto.Obter
     public class ObterProdutoUseCase : IObterProdutoUseCase
     {
         private readonly IProdutoRepository _produtoRepository;
+        private readonly IArmazenamentoImagens _armazenamento;
 
-        public ObterProdutoUseCase(IProdutoRepository produtoRepository)
+        public ObterProdutoUseCase(IProdutoRepository produtoRepository, IArmazenamentoImagens armazenamento)
         {
             _produtoRepository = produtoRepository;
+            _armazenamento = armazenamento;
         }
 
         public async Task<ResponseProdutoDetalhe> Execute(int id)
@@ -43,7 +47,8 @@ namespace Application.UseCases.Produto.Obter
                 Tamanhos = MapearOpcoes(produto, TipoOpcao.Tamanho),
                 Cores = MapearOpcoes(produto, TipoOpcao.Cor),
                 Personalizacoes = MapearOpcoes(produto, TipoOpcao.Personalizacao),
-                Variantes = variantes
+                Variantes = variantes,
+                Imagens = MapearImagem.ParaLista(produto.Imagens, _armazenamento)
             };
         }
 

@@ -1,5 +1,7 @@
 using Application.Response;
+using Application.Services.Mapeamento;
 using Domain.Repositories;
+using Domain.Services.Armazenamento;
 using Exceptions;
 using Exceptions.ExceptionBase;
 
@@ -8,10 +10,12 @@ namespace Application.UseCases.Produto.ObterAdmin
     public class ObterProdutoAdminUseCase : IObterProdutoAdminUseCase
     {
         private readonly IProdutoRepository _produtoRepository;
+        private readonly IArmazenamentoImagens _armazenamento;
 
-        public ObterProdutoAdminUseCase(IProdutoRepository produtoRepository)
+        public ObterProdutoAdminUseCase(IProdutoRepository produtoRepository, IArmazenamentoImagens armazenamento)
         {
             _produtoRepository = produtoRepository;
+            _armazenamento = armazenamento;
         }
 
         public async Task<ResponseProdutoAdmin> Execute(int id)
@@ -50,7 +54,8 @@ namespace Application.UseCases.Produto.ObterAdmin
                         Cor = variante.CorOpcao?.Valor,
                         Ativo = variante.Ativo,
                         Quantidade = variante.Estoque?.Quantidade ?? 0
-                    }).ToList()
+                    }).ToList(),
+                Imagens = MapearImagem.ParaLista(produto.Imagens, _armazenamento)
             };
         }
     }

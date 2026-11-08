@@ -8,6 +8,12 @@ namespace API.IntegrationTests.Factories
     // para que CHECK, índices únicos e FKs sejam validados nos testes.
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
+        // Fotos dos testes no disco, numa pasta temporária própria de cada execução da suíte
+        public static readonly string PastaImagens =
+            Path.Combine(Path.GetTempPath(), "belissima-imagens-testes", Guid.NewGuid().ToString("N"));
+
+        public const string UrlPublicaImagens = "http://localhost/imagens";
+
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureAppConfiguration((context, config) =>
@@ -23,7 +29,14 @@ namespace API.IntegrationTests.Factories
                 config.AddJsonFile("appsettings.Testing.json", optional: true, reloadOnChange: false);
 
                 // BCrypt com o custo mínimo: a suíte cadastra muitos clientes e o custo de produção (11) a deixaria lenta
-                config.AddInMemoryCollection(new Dictionary<string, string?> { ["Settings:Password:BCryptFatorCusto"] = "4" });
+                // Storage no disco: os testes nunca gravam no Supabase
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    ["Settings:Password:BCryptFatorCusto"] = "4",
+                    ["Storage:Provedor"] = "Local",
+                    ["Storage:PastaLocal"] = PastaImagens,
+                    ["Storage:UrlPublicaLocal"] = UrlPublicaImagens
+                });
 
                 // Por último, para valer sobre o arquivo: ConnectionStrings__ConnectionPostgreSql, Jwt__ChaveSecreta...
                 config.AddEnvironmentVariables();

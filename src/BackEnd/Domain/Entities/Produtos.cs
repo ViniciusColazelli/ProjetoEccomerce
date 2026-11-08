@@ -10,5 +10,6 @@ namespace Domain.Entities
 
         public ICollection<ProdutoOpcoes> Opcoes { get; set; } = new List<ProdutoOpcoes>();
         public ICollection<ProdutoVariantes> Variantes { get; set; } = new List<ProdutoVariantes>();
+        public ICollection<ProdutoImagens> Imagens { get; set; } = new List<ProdutoImagens>();
     }
 }

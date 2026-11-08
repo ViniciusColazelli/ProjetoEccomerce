@@ -15,6 +15,10 @@ namespace Infrastructure.DataAcess.Configurations
             builder.HasMany(produto => produto.Variantes)
                 .WithOne(variante => variante.Produto)
                 .HasForeignKey(variante => variante.ProdutoId);
+
+            builder.HasMany(produto => produto.Imagens)
+                .WithOne()
+                .HasForeignKey(imagem => imagem.ProdutoId);
         }
     }
 }
