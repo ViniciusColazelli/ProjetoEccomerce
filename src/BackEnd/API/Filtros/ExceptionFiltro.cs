@@ -10,6 +10,10 @@ namespace API.Filtros
 {
     public class ExceptionFiltro : IExceptionFilter
     {
+        private readonly ILogger<ExceptionFiltro> _logger;
+
+        public ExceptionFiltro(ILogger<ExceptionFiltro> logger) => _logger = logger;
+
         public void OnException(ExceptionContext context)
         {
             if (context.Exception is EccomerceException)
@@ -55,6 +59,10 @@ namespace API.Filtros
 
         private void ThrowExceptionDesconhecida(ExceptionContext context)
         {
+            // O cliente recebe só "Erro desconhecido"; o detalhe fica no log do servidor (Render)
+            _logger.LogError(context.Exception, "Erro não tratado em {Metodo} {Caminho}",
+                context.HttpContext.Request.Method, context.HttpContext.Request.Path);
+
             context.HttpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Result = new ObjectResult(new ResponseErro(ResourceMensagensDeErro.ERRO_DESCONHECIDO));
         }

@@ -63,8 +63,11 @@ namespace Infrastructure.DataAcess.Repositories
 
             if (string.IsNullOrWhiteSpace(filtro.BuscaCliente) == false)
             {
-                var busca = filtro.BuscaCliente.Trim().ToLower();
-                consulta = consulta.Where(pedido => pedido.Cliente.Nome.ToLower().Contains(busca) || pedido.Cliente.Email.ToLower().Contains(busca));
+                // Ignora maiúsculas e acentos, como a busca de produtos: "joao" encontra "João" (unaccent, migration 15)
+                var busca = filtro.BuscaCliente.Trim();
+                consulta = consulta.Where(pedido =>
+                    EF.Functions.Unaccent(pedido.Cliente.Nome).ToLower().Contains(EF.Functions.Unaccent(busca).ToLower())
+                    || EF.Functions.Unaccent(pedido.Cliente.Email).ToLower().Contains(EF.Functions.Unaccent(busca).ToLower()));
             }
 
             // o dia é contado em UTC, como no histórico de movimentações

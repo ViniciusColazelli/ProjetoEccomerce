@@ -139,6 +139,28 @@ namespace API.IntegrationTests.Tests
             body.Pedidos.Should().ContainSingle().Which.Id.Should().Be(daMaria);
         }
 
+        [Theory]
+        [InlineData("cliente=joao%20pereira")]  // sem acento encontra "João Pereira" (o e-mail não tem o sobrenome)
+        [InlineData("cliente=JO%C3%83O%20P")]   // "JOÃO P": com acento e maiúsculas também
+        public async Task Should_FiltrarPorCliente_SemDiferenciarAcentos(string query)
+        {
+            // Arrange
+            var ct = TestContext.Current.CancellationToken;
+            using var client = await _fixture.CriarClientAutenticado(Perfis.Admin);
+            var (maria, joao) = await PrepararClientes();
+            var catalogo = await PrepararCatalogo(_fixture, ct);
+
+            await PrepararPedido(_fixture, ct, catalogo, maria, StatusPedido.Pago, Dia(1));
+            var doJoao = await PrepararPedido(_fixture, ct, catalogo, joao, StatusPedido.Pago, Dia(2));
+
+            // Act
+            var body = await Listar(client, query, ct);
+
+            // Assert
+            body.Total.Should().Be(1);
+            body.Pedidos.Should().ContainSingle().Which.Id.Should().Be(doJoao);
+        }
+
         [Fact]
         public async Task Should_FiltrarPorPeriodo_IncluindoODiaFinalInteiro()
         {
