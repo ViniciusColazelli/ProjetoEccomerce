@@ -37,6 +37,42 @@ namespace API.IntegrationTests.Tests
             operacao.Responses!.Keys.Should().BeEquivalentTo(respostas.Split(','));
         }
 
+        [Theory]
+        [InlineData("/api/admin/produto/{produtoId}/imagem", "POST", "201,400,401,403,404")]
+        [InlineData("/api/admin/produto/{produtoId}/imagem/{imagemId}", "DELETE", "204,401,403,404")]
+        [InlineData("/api/admin/produto/{produtoId}/imagem/ordem", "PUT", "200,400,401,403,404")]
+        public void Should_DocumentarRotasDeImagens(string rota, string metodo, string respostas)
+        {
+            // Arrange
+            using var scope = _fixture.CriarScope();
+            var swagger = scope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
+
+            // Act
+            var documento = swagger.GetSwagger("v1");
+
+            // Assert
+            documento.Paths.Should().ContainKey(rota);
+            var operacao = documento.Paths[rota].Operations.Should().ContainKey(new HttpMethod(metodo)).WhoseValue;
+            operacao.Responses!.Keys.Should().BeEquivalentTo(respostas.Split(','));
+        }
+
+        // O envio aparece no Swagger como formulário com os dois arquivos, e dá para testar por lá
+        [Fact]
+        public void Should_DocumentarEnvioDeFotoComoMultipart()
+        {
+            // Arrange
+            using var scope = _fixture.CriarScope();
+            var swagger = scope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
+
+            // Act
+            var documento = swagger.GetSwagger("v1");
+
+            // Assert
+            var operacao = documento.Paths["/api/admin/produto/{produtoId}/imagem"].Operations![HttpMethod.Post];
+            var formulario = operacao.RequestBody!.Content.Should().ContainKey("multipart/form-data").WhoseValue;
+            formulario.Schema!.Properties.Should().ContainKeys("imagem", "miniatura");
+        }
+
         // O cadeado do Swagger: o esquema JWT existe e é exigido em todas as rotas
         [Fact]
         public void Should_DocumentarAutenticacaoJwt()
