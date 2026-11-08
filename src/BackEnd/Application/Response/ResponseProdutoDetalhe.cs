@@ -11,5 +11,6 @@ namespace Application.Response
         public IList<ResponseProdutoOpcao> Cores { get; set; } = new List<ResponseProdutoOpcao>();
         public IList<ResponseProdutoOpcao> Personalizacoes { get; set; } = new List<ResponseProdutoOpcao>();
         public IList<ResponseProdutoVariante> Variantes { get; set; } = new List<ResponseProdutoVariante>();
+        public IList<ResponseProdutoImagem> Imagens { get; set; } = new List<ResponseProdutoImagem>(); // a primeira é a capa
     }
 }

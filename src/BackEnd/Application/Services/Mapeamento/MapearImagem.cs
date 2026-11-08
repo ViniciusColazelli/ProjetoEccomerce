@@ -14,5 +14,20 @@ namespace Application.Services.Mapeamento
             UrlMiniatura = armazenamento.UrlPublica(imagem.CaminhoMiniatura),
             Ordem = imagem.Ordem
         };
+
+        // Galeria na ordem de exibição (a primeira é a capa)
+        public static IList<ResponseProdutoImagem> ParaLista(IEnumerable<ProdutoImagens> imagens, IArmazenamentoImagens armazenamento) =>
+            imagens
+                .OrderBy(imagem => imagem.Ordem)
+                .ThenBy(imagem => imagem.Id)
+                .Select(imagem => ParaResponse(imagem, armazenamento))
+                .ToList();
+
+        // Miniatura da capa para cards e listas; null quando o produto não tem foto (o front mostra o placeholder)
+        public static string? CapaMiniatura(IEnumerable<ProdutoImagens> imagens, IArmazenamentoImagens armazenamento)
+        {
+            var capa = imagens.OrderBy(imagem => imagem.Ordem).ThenBy(imagem => imagem.Id).FirstOrDefault();
+            return capa is null ? null : armazenamento.UrlPublica(capa.CaminhoMiniatura);
+        }
     }
 }

@@ -18,7 +18,7 @@ namespace Infrastructure.DataAcess.Repositories
 
         public async Task<IList<Produtos>> ListarAtivos(FiltroListagemProdutos filtro)
         {
-            return await Paginar(Ordenar(ConsultarAtivos(filtro), filtro), filtro).ToListAsync();
+            return await ComCapa(Paginar(Ordenar(ConsultarAtivos(filtro), filtro), filtro)).ToListAsync();
         }
 
         public async Task<int> ContarAtivos(FiltroListagemProdutos filtro)
@@ -36,13 +36,14 @@ namespace Infrastructure.DataAcess.Repositories
                         variante.TamanhoOpcao.Ativo &&
                         (variante.CorOpcaoId == null || variante.CorOpcao!.Ativo)))
                     .ThenInclude(variante => variante.Estoque)
+                .Include(produto => produto.Imagens.OrderBy(imagem => imagem.Ordem).ThenBy(imagem => imagem.Id))
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(produto => produto.Id == id && produto.Ativo);
         }
 
         public async Task<IList<Produtos>> ListarTodos(FiltroListagemProdutos filtro)
         {
-            return await Paginar(Ordenar(ConsultarTodos(filtro), filtro), filtro).ToListAsync();
+            return await ComCapa(Paginar(Ordenar(ConsultarTodos(filtro), filtro), filtro)).ToListAsync();
         }
 
         public async Task<int> ContarTodos(FiltroListagemProdutos filtro)
@@ -58,6 +59,7 @@ namespace Infrastructure.DataAcess.Repositories
                 .Include(produto => produto.Variantes).ThenInclude(variante => variante.TamanhoOpcao)
                 .Include(produto => produto.Variantes).ThenInclude(variante => variante.CorOpcao)
                 .Include(produto => produto.Variantes).ThenInclude(variante => variante.Estoque)
+                .Include(produto => produto.Imagens.OrderBy(imagem => imagem.Ordem).ThenBy(imagem => imagem.Id))
                 .AsSplitQuery()
                 .FirstOrDefaultAsync(produto => produto.Id == id);
         }
@@ -142,6 +144,15 @@ namespace Infrastructure.DataAcess.Repositories
             return consulta
                 .Skip((filtro.Pagina - 1) * filtro.TamanhoPagina)
                 .Take(filtro.TamanhoPagina);
+        }
+
+        // nas listas só a capa (a foto de menor ordem) é carregada, não a galeria inteira
+        private static IQueryable<Produtos> ComCapa(IQueryable<Produtos> consulta)
+        {
+            return consulta.Include(produto => produto.Imagens
+                .OrderBy(imagem => imagem.Ordem)
+                .ThenBy(imagem => imagem.Id)
+                .Take(1));
         }
     }
 }
