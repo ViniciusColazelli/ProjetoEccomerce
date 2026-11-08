@@ -1,6 +1,7 @@
 ﻿using Domain.Repositories;
 using Domain.Security.Criptografia;
 using Domain.Security.Tokens;
+using Domain.Services.Armazenamento;
 using Domain.Services.ClienteLogado;
 using Exceptions;
 using FluentMigrator.Runner;
@@ -8,12 +9,14 @@ using Infrastructure.DataAcess;
 using Infrastructure.DataAcess.Repositories;
 using Infrastructure.Security.Criptografia;
 using Infrastructure.Security.Tokens;
+using Infrastructure.Services.Armazenamento;
 using Infrastructure.Services.ClienteLogado;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using System.Reflection;
@@ -32,6 +35,31 @@ namespace Infrastructure
             AddFluentMigrator(services, configuration);
             AddRepositories(services);
             AddClienteLogado(services);
+            AddArmazenamentoImagens(services);
+        }
+
+        private const string CLIENTE_HTTP_SUPABASE = "SupabaseStorage";
+
+        // Disco local ou Supabase Storage, conforme Storage:Provedor (ver ArmazenamentoConfig).
+        // Como no SenhaCriptografada, a configuração é lida na criação dos serviços, e não aqui,
+        // para valer a que os testes injetam no WebApplicationFactory.
+        private static void AddArmazenamentoImagens(IServiceCollection services)
+        {
+            services.AddSingleton(provider => ArmazenamentoConfig.Ler(provider.GetRequiredService<IConfiguration>()));
+
+            // endereço e chave são colocados pelo próprio ArmazenamentoSupabase
+            services.AddHttpClient(CLIENTE_HTTP_SUPABASE);
+
+            services.AddScoped<IArmazenamentoImagens>(provider =>
+            {
+                var config = provider.GetRequiredService<ArmazenamentoConfig>();
+
+                if (config.UsaSupabase)
+                    return new ArmazenamentoSupabase(provider.GetRequiredService<IHttpClientFactory>().CreateClient(CLIENTE_HTTP_SUPABASE), config);
+
+                var contentRoot = provider.GetRequiredService<IHostEnvironment>().ContentRootPath;
+                return new ArmazenamentoLocal(config.PastaLocalAbsoluta(contentRoot), config.UrlPublicaLocal);
+            });
         }
 
         private static void AddDbContext_PostgreSql(this IServiceCollection services, IConfiguration configuration)
@@ -74,6 +102,7 @@ namespace Infrastructure
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IProdutoOpcaoRepository, ProdutoOpcaoRepository>();
             services.AddScoped<IProdutoVarianteRepository, ProdutoVarianteRepository>();
+            services.AddScoped<IProdutoImagemRepository, ProdutoImagemRepository>();
             services.AddScoped<IEstoqueRepository, EstoqueRepository>();
             services.AddScoped<IEstoqueMovimentacaoRepository, EstoqueMovimentacaoRepository>();
             services.AddScoped<IPedidoRepository, PedidoRepository>();

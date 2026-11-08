@@ -43,6 +43,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// fotos dos produtos quando o Storage é o disco local (implementação em ImagensLocaisExtension.cs)
+app.UseImagensLocais();
+
 app.UseCors(CorsExtension.PoliticaFrontEnd);
 
 // Em Development o front chama a API pelo proxy do Next, que manda X-Forwarded-Proto: http:

@@ -14,6 +14,7 @@ namespace Infrastructure.DataAcess
         // o nome do DbSet vira o nome da tabela (ToSnakeCase abaixo): ProdutoOpcoes -> produto_opcoes
         public DbSet<ProdutoOpcoes> ProdutoOpcoes { get; set; }
         public DbSet<ProdutoVariantes> ProdutoVariantes { get; set; }
+        public DbSet<ProdutoImagens> ProdutoImagens { get; set; }
         public DbSet<Estoque> Estoque { get; set; }
         public DbSet<EstoqueMovimentacoes> EstoqueMovimentacoes { get; set; }
         public DbSet<Pedidos> Pedidos { get; set; }

@@ -9,8 +9,11 @@ appsettings.Development.json
 
 # Requisições com senhas e tokens reais (ex.: teste-pedidos-producao.local.http)
 *.local.http
-appsettings.*.json        
-!appsettings.json   
+appsettings.*.json
+!appsettings.json
+
+# Fotos enviadas em Development (Storage:Provedor=Local grava na pasta da API)
+src/BackEnd/API/imagens/
 
 # User-specific files
 *.suo
