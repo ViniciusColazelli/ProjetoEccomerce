@@ -7,7 +7,7 @@ namespace Domain.Filtros
     {
         public int? ClienteId { get; set; }
         public StatusPedido? Status { get; set; }
-        public string? BuscaCliente { get; set; } // parte do nome ou do e-mail, sem diferenciar maiúsculas
+        public string? BuscaCliente { get; set; } // parte do nome ou do e-mail, sem diferenciar maiúsculas nem acentos
         public DateOnly? De { get; set; }
         public DateOnly? Ate { get; set; } // inclusivo: vale o dia inteiro
         public int Pagina { get; set; } = 1;
