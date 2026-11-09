@@ -56,6 +56,25 @@ namespace API.IntegrationTests.Tests
             operacao.Responses!.Keys.Should().BeEquivalentTo(respostas.Split(','));
         }
 
+        [Theory]
+        [InlineData("/api/Login", "POST", "200,401,429")]
+        [InlineData("/api/Login/refresh", "POST", "204,401,429")]
+        [InlineData("/api/Login/logout", "POST", "204")]
+        public void Should_DocumentarRotasDeSessao(string rota, string metodo, string respostas)
+        {
+            // Arrange
+            using var scope = _fixture.CriarScope();
+            var swagger = scope.ServiceProvider.GetRequiredService<ISwaggerProvider>();
+
+            // Act
+            var documento = swagger.GetSwagger("v1");
+
+            // Assert
+            documento.Paths.Should().ContainKey(rota);
+            var operacao = documento.Paths[rota].Operations.Should().ContainKey(new HttpMethod(metodo)).WhoseValue;
+            operacao.Responses!.Keys.Should().BeEquivalentTo(respostas.Split(','));
+        }
+
         // O envio aparece no Swagger como formulário com os dois arquivos, e dá para testar por lá
         [Fact]
         public void Should_DocumentarEnvioDeFotoComoMultipart()

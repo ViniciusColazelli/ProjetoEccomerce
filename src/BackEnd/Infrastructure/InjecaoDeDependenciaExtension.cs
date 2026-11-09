@@ -154,6 +154,9 @@ namespace Infrastructure
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
+                    // o padrão do .NET aceita o token até 5 minutos depois de vencer; com o refresh, a
+                    // validade precisa ser levada a sério (30 s só cobrem diferença de relógio)
+                    ClockSkew = TimeSpan.FromSeconds(30),
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = issuer,
                     ValidAudience = audience,

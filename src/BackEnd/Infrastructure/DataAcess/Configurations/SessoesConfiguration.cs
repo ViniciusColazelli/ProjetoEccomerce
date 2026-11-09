@@ -12,6 +12,13 @@ namespace Infrastructure.DataAcess.Configurations
             builder.Property(sessao => sessao.CriadoEm)
                 .HasDefaultValueSql("timezone('utc', now())");
 
+            // duas abas renovando a mesma sessão ao mesmo tempo: com o xmin, só a primeira grava
+            // (a segunda falha no Salvar e o refresh dela é recusado)
+            builder.Property<uint>("xmin")
+                .HasColumnType("xid")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
+
             // apagar o cliente apaga as sessões dele
             builder.HasOne(sessao => sessao.Cliente)
                 .WithMany()

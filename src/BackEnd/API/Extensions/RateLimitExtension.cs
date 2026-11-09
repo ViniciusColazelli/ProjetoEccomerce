@@ -7,6 +7,7 @@ namespace API.Extensions
     public static class RateLimitExtension
     {
         public const string PoliticaAutenticacao = "autenticacao";
+        public const string PoliticaRenovacao = "renovacao";
 
         public static void AddRateLimitConfigurado(this IServiceCollection services)
         {
@@ -32,6 +33,18 @@ namespace API.Extensions
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
                             PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        }));
+
+                // Refresh da sessão: cada aba aberta renova sozinha, então o limite do login (5) derrubaria
+                // quem usa várias abas. 30 por minuto ainda impede tentar tokens em massa
+                options.AddPolicy(PoliticaRenovacao, context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: ObterIp(context),
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 30,
                             Window = TimeSpan.FromMinutes(1),
                             QueueLimit = 0
                         }));

@@ -31,6 +31,8 @@ using Application.UseCases.ProdutoVariante.AlterarStatus;
 using Application.UseCases.ProdutoVariante.Gerar;
 using Application.UseCases.Profile;
 using Application.UseCases.Registrar;
+using Application.UseCases.Sessao.Encerrar;
+using Application.UseCases.Sessao.Renovar;
 using Application.UseCases.TrocarSenha;
 using Application.UseCases.Update;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +56,8 @@ namespace Application
         {
             services.AddScoped<IRegistrarClienteUseCase, ResgitrarClienteUseCase>();
             services.AddScoped<ILoginClienteUseCase, LoginClienteUseCase>();
+            services.AddScoped<IRenovarSessaoUseCase, RenovarSessaoUseCase>();
+            services.AddScoped<IEncerrarSessaoUseCase, EncerrarSessaoUseCase>();
             services.AddScoped<IUpdateClienteUseCase, UpdateClienteUseCase>();
             services.AddScoped<ITrocarSenhaUseCase, TrocarSenhaUseCase>();
             services.AddScoped<IGetClienteProfileUseCase, GetClienteProfileUseCase>();

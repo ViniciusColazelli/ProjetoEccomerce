@@ -21,7 +21,7 @@ Content-Type: application/json
   "senha": "senha123"
 }
 
-### Login (200 + cookie access_token | 401 e-mail ou senha inválidos)
+### Login (200 + cookies access_token e refresh_token | 401 e-mail ou senha inválidos)
 POST {{Controller.API_HostAddress}}/api/login
 Content-Type: application/json
 
@@ -30,7 +30,11 @@ Content-Type: application/json
   "senha": "senha123"
 }
 
-### Logout (remove o cookie)
+### Renovar a sessão (204 + cookies novos | 401 sem cookie refresh_token, vencido, revogado ou já usado)
+# usa o cookie refresh_token gravado pelo login; cada refresh token vale uma vez
+POST {{Controller.API_HostAddress}}/api/login/refresh
+
+### Logout (revoga a sessão do cookie refresh_token e remove os dois cookies)
 POST {{Controller.API_HostAddress}}/api/login/logout
 
 ### Perfil do cliente logado (401 sem login)
