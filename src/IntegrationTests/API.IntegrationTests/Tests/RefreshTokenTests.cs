@@ -1,6 +1,7 @@
 using API.Extensions;
 using API.IntegrationTests.Fixture;
 using Application.Request;
+using Application.UseCases.Login;
 using Domain.Entities;
 using Domain.Security.Perfis;
 using Domain.Security.Tokens;
@@ -23,7 +24,8 @@ using Xunit;
 
 namespace API.IntegrationTests.Tests
 {
-    // Login com sessão, POST /api/Login/refresh (rotação e reuso) e logout que revoga a sessão
+    // Login com sessão, POST /api/Login/refresh (rotação e reuso), logout que revoga a sessão,
+    // troca de senha que derruba as outras e a limpeza/limite de sessões no login
     public class RefreshTokenTests : BaseTesteIntegracao
     {
         private const string ENDPOINT_LOGIN = "/api/login";
@@ -364,6 +366,118 @@ namespace API.IntegrationTests.Tests
         }
 
         // ════════════════════════════════════════════════════════════════
+        // TROCA DE SENHA
+        // ════════════════════════════════════════════════════════════════
+
+        // quem tinha a senha antiga perde o acesso; quem trocou continua logado com uma sessão nova
+        [Fact]
+        public async Task Should_DerrubarTodasAsSessoesEAbrirUmaNova_When_TrocaDeSenha()
+        {
+            // Arrange
+            await _fixture.CadastrarCliente(EMAIL, SENHA);
+            using var client = _fixture.CriarClientSemCookies();
+            var celular = await Logar(client);
+            var computador = await Logar(client);
+
+            // Act
+            var response = await TrocarSenha(client, computador.Access, SENHA, "NovaSenha@456");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            var novoAccess = Cookie(response, COOKIE_ACCESS).Value.ToString();
+            var novoRefresh = Cookie(response, COOKIE_REFRESH).Value.ToString();
+            Cookie(response, COOKIE_REFRESH).SameSite.Should().Be(SameSiteMode.Strict);
+
+            (await Renovar(client, celular.Refresh)).StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            (await Renovar(client, computador.Refresh)).StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+
+            (await ComCookie(client, HttpMethod.Get, ENDPOINT_PERFIL, $"{COOKIE_ACCESS}={novoAccess}"))
+                .StatusCode.Should().Be(HttpStatusCode.OK);
+            (await Renovar(client, novoRefresh)).StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            // as antigas foram encerradas, não trocadas: não contam como reuso
+            (await Sessoes()).Where(s => s.TokenHash == Hash(celular.Refresh) || s.TokenHash == Hash(computador.Refresh))
+                .Should().HaveCount(2).And.OnlyContain(s => s.RevogadoEm != null && s.SubstituidaPorId == null);
+        }
+
+        [Fact]
+        public async Task Should_ManterAsSessoes_When_SenhaAtualErrada()
+        {
+            // Arrange
+            await _fixture.CadastrarCliente(EMAIL, SENHA);
+            using var client = _fixture.CriarClientSemCookies();
+            var celular = await Logar(client);
+            var computador = await Logar(client);
+
+            // Act
+            var response = await TrocarSenha(client, computador.Access, "SenhaErrada@1", "NovaSenha@456");
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            response.Headers.Contains("Set-Cookie").Should().BeFalse();
+            (await Sessoes()).Should().HaveCount(2).And.OnlyContain(s => s.RevogadoEm == null);
+            (await Renovar(client, celular.Refresh)).StatusCode.Should().Be(HttpStatusCode.NoContent);
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // LIMPEZA E LIMITE NO LOGIN
+        // ════════════════════════════════════════════════════════════════
+
+        // as vencidas saem; as revogadas que ainda não venceram ficam (reuso continua reconhecível)
+        [Fact]
+        public async Task Should_ApagarSoAsVencidasDoCliente_When_Login()
+        {
+            // Arrange
+            await _fixture.CadastrarCliente(EMAIL, SENHA);
+            await _fixture.CadastrarCliente("joao@empresa.com", SENHA);
+            using var client = _fixture.CriarClientSemCookies();
+
+            var vencida = await Logar(client);
+            var revogada = await Logar(client);
+            var doJoao = await Logar(client, "joao@empresa.com");
+
+            var ontem = DateTime.UtcNow.AddDays(-1);
+            foreach (var hash in new[] { Hash(vencida.Refresh), Hash(doJoao.Refresh) })
+                await AjustarSessoes(s => s.SetProperty(x => x.ExpiraEm, ontem).SetProperty(x => x.ExpiraMaximoEm, ontem), hash);
+            await ComCookie(client, HttpMethod.Post, ENDPOINT_LOGOUT, $"{COOKIE_REFRESH}={revogada.Refresh}");
+
+            // Act
+            var nova = await Logar(client);
+
+            // Assert
+            (await Sessoes()).Select(s => s.TokenHash).Should()
+                .BeEquivalentTo([Hash(revogada.Refresh), Hash(doJoao.Refresh), Hash(nova.Refresh)]);
+        }
+
+        [Fact]
+        public async Task Should_RevogarAMaisAntiga_When_LoginPassaDoLimiteDeSessoes()
+        {
+            // Arrange
+            await _fixture.CadastrarCliente(EMAIL, SENHA);
+            using var client = _fixture.CriarClientSemCookies();
+
+            var logins = new List<Login>();
+            for (var i = 0; i < LoginClienteUseCase.MAXIMO_SESSOES; i++)
+                logins.Add(await Logar(client));
+
+            (await Sessoes()).Count(s => s.RevogadoEm == null).Should().Be(LoginClienteUseCase.MAXIMO_SESSOES);
+
+            // Act
+            var excedente = await Logar(client);
+
+            // Assert
+            var sessoes = await Sessoes();
+            sessoes.Count(s => s.RevogadoEm == null).Should().Be(LoginClienteUseCase.MAXIMO_SESSOES);
+            sessoes.Single(s => s.RevogadoEm != null).TokenHash.Should().Be(Hash(logins[0].Refresh));
+
+            // a revogada pelo limite não conta como reuso: as outras continuam valendo
+            (await Renovar(client, logins[0].Refresh)).StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+            (await Renovar(client, logins[1].Refresh)).StatusCode.Should().Be(HttpStatusCode.NoContent);
+            (await Renovar(client, excedente.Refresh)).StatusCode.Should().Be(HttpStatusCode.NoContent);
+        }
+
+        // ════════════════════════════════════════════════════════════════
         // CONFIGURAÇÃO
         // ════════════════════════════════════════════════════════════════
 
@@ -420,6 +534,17 @@ namespace API.IntegrationTests.Tests
             var request = new HttpRequestMessage(metodo, url);
             if (cookie is not null)
                 request.Headers.Add("Cookie", cookie);
+
+            return client.SendAsync(request);
+        }
+
+        private static Task<HttpResponseMessage> TrocarSenha(HttpClient client, string access, string senhaAtual, string novaSenha)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Put, "/api/cliente/change-password")
+            {
+                Content = JsonContent.Create(new RequestTrocarSenha { Senha = senhaAtual, NovaSenha = novaSenha })
+            };
+            request.Headers.Add("Cookie", $"{COOKIE_ACCESS}={access}");
 
             return client.SendAsync(request);
         }

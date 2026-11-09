@@ -10,6 +10,9 @@ namespace Application.UseCases.Login
 {
     public class LoginClienteUseCase : ILoginClienteUseCase
     {
+        // sessões ativas por cliente, contando a do login: a mais antiga cai para a nova entrar
+        public const int MAXIMO_SESSOES = 10;
+
         private readonly IClienteRepository _repository;
         private readonly ISenhaCriptografada _senhaCriptografada;
         private readonly IGeradorTokenJwt _geradorTokenJwt;
@@ -43,6 +46,8 @@ namespace Application.UseCases.Login
             if (_senhaCriptografada.PrecisaAtualizar(user.Senha))
                 user.Senha = _senhaCriptografada.Gerar(request.Senha);
 
+            await OrganizarSessoes(user.Id);
+
             // cada login é uma sessão nova (outro aparelho ou navegador): as outras continuam valendo
             var refresh = _geradorRefreshToken.Criar(user.Id);
             await _sessaoRepository.Adicionar(refresh.Sessao);
@@ -53,6 +58,20 @@ namespace Application.UseCases.Login
 
             // o token não trafega no corpo da resposta: vai só nos cookies
             return new ResultadoLogin(new ResponseClienteLogado { Nome = user.Nome }, tokens);
+        }
+
+        // Aproveita o login para a tabela não crescer sem limite: apaga as vencidas do cliente e,
+        // se já houver o máximo de ativas, revoga as mais antigas (logins esquecidos em outros aparelhos)
+        private async Task OrganizarSessoes(int clienteId)
+        {
+            var agora = DateTime.UtcNow;
+
+            await _sessaoRepository.RemoverVencidas(clienteId, agora);
+
+            var ativas = await _sessaoRepository.ListarAtivas(clienteId, agora);
+
+            foreach (var antiga in ativas.Take(ativas.Count - (MAXIMO_SESSOES - 1)))
+                antiga.RevogadoEm = agora;
         }
     }
 }
