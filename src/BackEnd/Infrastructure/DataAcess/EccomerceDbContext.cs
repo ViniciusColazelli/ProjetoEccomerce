@@ -9,6 +9,7 @@ namespace Infrastructure.DataAcess
         public EccomerceDbContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Clientes> Clientes { get; set; }
+        public DbSet<Sessoes> Sessoes { get; set; }
         public DbSet<Produtos> Produtos { get; set; }
 
         // o nome do DbSet vira o nome da tabela (ToSnakeCase abaixo): ProdutoOpcoes -> produto_opcoes

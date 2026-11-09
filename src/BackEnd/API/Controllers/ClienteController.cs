@@ -54,9 +54,13 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseErro), StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> AlterarSenha([FromServices] ITrocarSenhaUseCase useCase, [FromBody] RequestTrocarSenha request)
+        public async Task<IActionResult> AlterarSenha([FromServices] ITrocarSenhaUseCase useCase, [FromServices] IConfiguration configuration,
+            [FromBody] RequestTrocarSenha request)
         {
-            await useCase.Execute(request);
+            var tokens = await useCase.Execute(request);
+
+            // as outras sessões caíram; quem trocou a senha continua logado com a sessão nova
+            Response.EscreverCookiesDaSessao(tokens, configuration);
 
             return NoContent();
         }

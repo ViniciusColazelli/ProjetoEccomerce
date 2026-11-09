@@ -1,8 +1,10 @@
 ﻿using Application.Request;
+using Application.Response;
 using Domain.Entities;
 using Domain.Extensions;
 using Domain.Repositories;
 using Domain.Security.Criptografia;
+using Domain.Security.Tokens;
 using Domain.Services.ClienteLogado;
 using Exceptions;
 using Exceptions.ExceptionBase;
@@ -14,17 +16,24 @@ namespace Application.UseCases.TrocarSenha
         private readonly IClienteLogado _clienteLogado;
         private readonly IClienteRepository _repository;
         private readonly ISenhaCriptografada _senhaCriptografada;
+        private readonly ISessaoRepository _sessaoRepository;
+        private readonly IGeradorRefreshToken _geradorRefreshToken;
+        private readonly IGeradorTokenJwt _geradorTokenJwt;
         private readonly ISalvarDBRepository _salvarDB;
 
-        public TrocarSenhaUseCase(IClienteLogado clienteLogado, IClienteRepository repository, ISenhaCriptografada senhaCriptografada, ISalvarDBRepository salvarDB)
+        public TrocarSenhaUseCase(IClienteLogado clienteLogado, IClienteRepository repository, ISenhaCriptografada senhaCriptografada,
+            ISessaoRepository sessaoRepository, IGeradorRefreshToken geradorRefreshToken, IGeradorTokenJwt geradorTokenJwt, ISalvarDBRepository salvarDB)
         {
             _clienteLogado = clienteLogado;
             _repository = repository;
             _senhaCriptografada = senhaCriptografada;
+            _sessaoRepository = sessaoRepository;
+            _geradorRefreshToken = geradorRefreshToken;
+            _geradorTokenJwt = geradorTokenJwt;
             _salvarDB = salvarDB;
         }
 
-        public async Task Execute(RequestTrocarSenha request)
+        public async Task<TokensSessao> Execute(RequestTrocarSenha request)
         {
             var clienteLogado = await _clienteLogado.Cliente();
 
@@ -36,7 +45,19 @@ namespace Application.UseCases.TrocarSenha
 
             _repository.Update(user);
 
+            // Quem tinha a senha antiga (ou uma cópia do cookie) perde o acesso: todas as sessões caem,
+            // inclusive a atual, e quem trocou a senha ganha uma nova e continua logado
+            var agora = DateTime.UtcNow;
+
+            foreach (var sessao in await _sessaoRepository.ListarAtivas(user.Id, agora))
+                sessao.RevogadoEm = agora;
+
+            var refresh = _geradorRefreshToken.Criar(user.Id);
+            await _sessaoRepository.Adicionar(refresh.Sessao);
+
             await _salvarDB.Salvar();
+
+            return new TokensSessao(_geradorTokenJwt.GerarToken(user), refresh.Token, refresh.Sessao.ExpiraEm);
         }
 
         private void Validate(RequestTrocarSenha request, Clientes clienteLogado)
@@ -52,4 +73,3 @@ namespace Application.UseCases.TrocarSenha
         }
     }
 }
-

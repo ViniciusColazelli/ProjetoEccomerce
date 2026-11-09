@@ -99,6 +99,7 @@ namespace Infrastructure
         private static void AddRepositories(IServiceCollection services)
         {
             services.AddScoped<IClienteRepository, ClienteRepository>();
+            services.AddScoped<ISessaoRepository, SessaoRepository>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IProdutoOpcaoRepository, ProdutoOpcaoRepository>();
             services.AddScoped<IProdutoVarianteRepository, ProdutoVarianteRepository>();
@@ -130,6 +131,10 @@ namespace Infrastructure
         private static void AddTokenJwt(IServiceCollection services)
         {
             services.AddScoped<IGeradorTokenJwt, GeradorTokenJwt>();
+
+            // como no Storage, a configuração é lida na criação do serviço, para valer a que os testes injetam
+            services.AddSingleton(provider => SessaoConfig.Ler(provider.GetRequiredService<IConfiguration>()));
+            services.AddSingleton<IGeradorRefreshToken, GeradorRefreshToken>();
         }
 
         private static void AddAuthenticationJwt(IServiceCollection services, IConfiguration configuration)
@@ -149,6 +154,9 @@ namespace Infrastructure
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
+                    // o padrão do .NET aceita o token até 5 minutos depois de vencer; com o refresh, a
+                    // validade precisa ser levada a sério (30 s só cobrem diferença de relógio)
+                    ClockSkew = TimeSpan.FromSeconds(30),
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = issuer,
                     ValidAudience = audience,
